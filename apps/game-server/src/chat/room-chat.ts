@@ -14,6 +14,13 @@ export type RoomChatBroadcast = {
   event: RoomChatEvent;
 };
 
+export type RoomChatMessage = {
+  senderMemberId: string;
+  message: string;
+};
+
+export type RoomChatBufferStore = Map<string, RoomChatMessage[]>;
+
 export function broadcastRoomChat(
   participants: RoomParticipant[],
   roomId: string,
@@ -32,4 +39,19 @@ export function broadcastRoomChat(
       message,
     },
   };
+}
+
+export function appendRoomChatMessage(
+  roomChatBufferStore: RoomChatBufferStore,
+  roomId: string,
+  roomChatMessage: RoomChatMessage,
+): RoomChatBufferStore {
+  const previousMessages = roomChatBufferStore.get(roomId) ?? [];
+  roomChatBufferStore.set(roomId, [...previousMessages, roomChatMessage]);
+
+  return roomChatBufferStore;
+}
+
+export function getRoomChatMessages(roomChatBufferStore: RoomChatBufferStore, roomId: string): RoomChatMessage[] {
+  return roomChatBufferStore.get(roomId) ?? [];
 }

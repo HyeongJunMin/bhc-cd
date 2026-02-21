@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { broadcastRoomChat } from './room-chat.ts';
+import { appendRoomChatMessage, broadcastRoomChat, getRoomChatMessages } from './room-chat.ts';
 
 test('룸 채팅은 같은 방 참가자에게만 전파된다', () => {
   const result = broadcastRoomChat(
@@ -19,4 +19,29 @@ test('룸 채팅은 같은 방 참가자에게만 전파된다', () => {
   assert.equal(result.event.roomId, 'room-1');
   assert.equal(result.event.senderMemberId, 'u1');
   assert.equal(result.event.message, 'hello');
+});
+
+test('채팅 메시지는 룸별 메모리 버퍼에 저장된다', () => {
+  const roomChatBufferStore = new Map();
+
+  appendRoomChatMessage(roomChatBufferStore, 'room-1', {
+    senderMemberId: 'u1',
+    message: 'first',
+  });
+  appendRoomChatMessage(roomChatBufferStore, 'room-1', {
+    senderMemberId: 'u2',
+    message: 'second',
+  });
+  appendRoomChatMessage(roomChatBufferStore, 'room-2', {
+    senderMemberId: 'u3',
+    message: 'other room',
+  });
+
+  assert.deepEqual(getRoomChatMessages(roomChatBufferStore, 'room-1'), [
+    { senderMemberId: 'u1', message: 'first' },
+    { senderMemberId: 'u2', message: 'second' },
+  ]);
+  assert.deepEqual(getRoomChatMessages(roomChatBufferStore, 'room-2'), [
+    { senderMemberId: 'u3', message: 'other room' },
+  ]);
 });
