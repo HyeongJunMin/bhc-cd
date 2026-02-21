@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 39 |
+| Todo | 38 |
 | In Progress | 0 |
-| Done | 62 |
+| Done | 63 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:55 |
+| Last Updated | 2026-02-22 00:56 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:55 | CHAT-001B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:56 | CHAT-001C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -89,7 +89,7 @@
 | PHY-002C | Agent C | done | 2026-02-22 00:53 | `node --experimental-strip-types --test packages/physics-core/src/shot-events.test.ts` 통과(2 pass) | - | CHAT-001A | 미스큐 결과 이벤트 매핑 어댑터 완료 |
 | CHAT-001A | Agent C | done | 2026-02-22 00:54 | `node --experimental-strip-types --test apps/game-server/src/chat/room-chat.test.ts` 통과(1 pass) | - | CHAT-001B | 룸 범위 채팅 broadcast 로직 구현 완료 |
 | CHAT-001B | Agent C | done | 2026-02-22 00:55 | `node --experimental-strip-types --test apps/game-server/src/chat/room-chat.test.ts` 통과(2 pass) | - | CHAT-001C | 룸별 메모리 채팅 버퍼 저장 로직 완료 |
-| CHAT-001C | - | todo | - | - | - | - | - |
+| CHAT-001C | Agent C | done | 2026-02-22 00:56 | `node --experimental-strip-types --test apps/game-server/src/chat/room-chat.test.ts` 통과(3 pass) | - | CHAT-002A | 룸 종료 시 채팅 버퍼 해제 처리 완료 |
 | CHAT-002A | - | todo | - | - | - | - | - |
 | CHAT-002B | - | todo | - | - | - | - | - |
 | CHAT-002C | - | todo | - | - | - | - | - |

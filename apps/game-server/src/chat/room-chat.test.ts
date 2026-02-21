@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { appendRoomChatMessage, broadcastRoomChat, getRoomChatMessages } from './room-chat.ts';
+import {
+  appendRoomChatMessage,
+  broadcastRoomChat,
+  clearRoomChatBuffer,
+  getRoomChatMessages,
+} from './room-chat.ts';
 
 test('룸 채팅은 같은 방 참가자에게만 전파된다', () => {
   const result = broadcastRoomChat(
@@ -43,5 +48,25 @@ test('채팅 메시지는 룸별 메모리 버퍼에 저장된다', () => {
   ]);
   assert.deepEqual(getRoomChatMessages(roomChatBufferStore, 'room-2'), [
     { senderMemberId: 'u3', message: 'other room' },
+  ]);
+});
+
+test('룸 종료 시 해당 룸의 채팅 버퍼를 해제한다', () => {
+  const roomChatBufferStore = new Map();
+
+  appendRoomChatMessage(roomChatBufferStore, 'room-1', {
+    senderMemberId: 'u1',
+    message: 'bye',
+  });
+  appendRoomChatMessage(roomChatBufferStore, 'room-2', {
+    senderMemberId: 'u2',
+    message: 'stay',
+  });
+
+  clearRoomChatBuffer(roomChatBufferStore, 'room-1');
+
+  assert.deepEqual(getRoomChatMessages(roomChatBufferStore, 'room-1'), []);
+  assert.deepEqual(getRoomChatMessages(roomChatBufferStore, 'room-2'), [
+    { senderMemberId: 'u2', message: 'stay' },
   ]);
 });

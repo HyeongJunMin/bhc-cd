@@ -55,3 +55,8 @@ export function appendRoomChatMessage(
 export function getRoomChatMessages(roomChatBufferStore: RoomChatBufferStore, roomId: string): RoomChatMessage[] {
   return roomChatBufferStore.get(roomId) ?? [];
 }
+
+export function clearRoomChatBuffer(roomChatBufferStore: RoomChatBufferStore, roomId: string): RoomChatBufferStore {
+  roomChatBufferStore.delete(roomId);
+  return roomChatBufferStore;
+}
