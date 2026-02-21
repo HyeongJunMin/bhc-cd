@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 66 |
+| Todo | 65 |
 | In Progress | 0 |
-| Done | 35 |
+| Done | 36 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:27 |
+| Last Updated | 2026-02-22 00:28 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:27 | ROOM-003C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:28 | GAME-001A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -62,7 +62,7 @@
 | ROOM-003A | Agent C | done | 2026-02-22 00:24 | `node --experimental-strip-types -e ... requireHostPermission` 확인 | - | ROOM-003B | 비방장 명령 차단 로직 완료 |
 | ROOM-003B | Agent C | done | 2026-02-22 00:26 | `node --experimental-strip-types -e ... executeKickCommand` 확인 | - | ROOM-003C | 강퇴+disconnect 이벤트 로직 완료 |
 | ROOM-003C | Agent C | done | 2026-02-22 00:27 | `node --experimental-strip-types --test kick-policy.test.ts` 통과(3 pass) | - | GAME-001A | 강퇴 권한/상태 검증 테스트 완료 |
-| GAME-001A | - | todo | - | - | - | - | - |
+| GAME-001A | Agent C | done | 2026-02-22 00:28 | `node --experimental-strip-types -e ... startGameRequest` 확인 | - | GAME-001B | start 요청 핸들러 분리 완료 |
 | GAME-001B | - | todo | - | - | - | - | - |
 | GAME-001C | - | todo | - | - | - | - | - |
 | GAME-002A | - | todo | - | - | - | - | - |
