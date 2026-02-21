@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 41 |
+| Todo | 40 |
 | In Progress | 0 |
-| Done | 60 |
+| Done | 61 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:53 |
+| Last Updated | 2026-02-22 00:54 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:53 | PHY-002C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:54 | CHAT-001A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -87,7 +87,7 @@
 | PHY-002A | Agent C | done | 2026-02-22 00:51 | `node --experimental-strip-types --test packages/physics-core/src/miscue.test.ts` 통과(2 pass) | - | PHY-002B | 미스큐 판정 함수 구현 완료 |
 | PHY-002B | Agent C | done | 2026-02-22 00:52 | `node --experimental-strip-types --test packages/physics-core/src/miscue.test.ts` 통과(3 pass) | - | PHY-002C | 0.89R/0.9R/0.91R 임계치 테스트 완료 |
 | PHY-002C | Agent C | done | 2026-02-22 00:53 | `node --experimental-strip-types --test packages/physics-core/src/shot-events.test.ts` 통과(2 pass) | - | CHAT-001A | 미스큐 결과 이벤트 매핑 어댑터 완료 |
-| CHAT-001A | - | todo | - | - | - | - | - |
+| CHAT-001A | Agent C | done | 2026-02-22 00:54 | `node --experimental-strip-types --test apps/game-server/src/chat/room-chat.test.ts` 통과(1 pass) | - | CHAT-001B | 룸 범위 채팅 broadcast 로직 구현 완료 |
 | CHAT-001B | - | todo | - | - | - | - | - |
 | CHAT-001C | - | todo | - | - | - | - | - |
 | CHAT-002A | - | todo | - | - | - | - | - |
