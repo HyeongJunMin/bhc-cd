@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 80 |
+| Todo | 79 |
 | In Progress | 0 |
-| Done | 21 |
+| Done | 22 |
 | Blocked | 1 |
-| Last Updated | 2026-02-21 23:58 |
+| Last Updated | 2026-02-21 23:59 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:58 | LOB-002A 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:59 | LOB-002B 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -48,7 +48,7 @@
 | LOB-001B | Agent C | done | 2026-02-21 23:55 | `cat room-state.ts`, `cat room-summary.ts` 확인 | - | LOB-001C | RoomState enum 분리 완료 |
 | LOB-001C | Agent C | done | 2026-02-21 23:56 | `cat packages/shared-types/src/index.ts` 확인 | - | LOB-002A | shared-types export 경로 정리 완료 |
 | LOB-002A | Agent C | done | 2026-02-21 23:58 | `node --experimental-strip-types -e ...` 확인 | - | LOB-002B | 제목 15자 유효성 검사 구현 완료 |
-| LOB-002B | - | todo | - | - | - | - | - |
+| LOB-002B | Agent C | done | 2026-02-21 23:59 | `node --experimental-strip-types -e ... createRoom` 확인 | - | LOB-002C | 방 생성(중복 허용) 로직 추가 완료 |
 | LOB-002C | - | todo | - | - | - | - | - |
 | LOB-003A | - | todo | - | - | - | - | - |
 | LOB-003B | - | todo | - | - | - | - | - |
