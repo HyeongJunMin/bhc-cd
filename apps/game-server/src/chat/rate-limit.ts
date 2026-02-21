@@ -12,6 +12,12 @@ export type ChatRateLimitResult =
       retryAfterMs: number;
     };
 
+export type ChatRateLimitFeedback = {
+  type: 'CHAT_RATE_LIMIT_NOTICE';
+  message: string;
+  retryAfterMs: number;
+};
+
 export function recordLastChatSentAt(
   userLastSentAtStore: UserLastSentAtStore,
   memberId: string,
@@ -44,5 +50,14 @@ export function evaluateChatRateLimit(
     ok: false,
     errorCode: 'CHAT_RATE_LIMITED',
     retryAfterMs: CHAT_RATE_LIMIT_WINDOW_MS - elapsedMs,
+  };
+}
+
+export function createChatRateLimitFeedback(retryAfterMs: number): ChatRateLimitFeedback {
+  const seconds = Math.ceil(retryAfterMs / 1000);
+  return {
+    type: 'CHAT_RATE_LIMIT_NOTICE',
+    message: `${seconds}초 후에 다시 메시지를 보낼 수 있습니다.`,
+    retryAfterMs,
   };
 }

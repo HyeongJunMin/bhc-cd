@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { evaluateChatRateLimit, getLastChatSentAt, recordLastChatSentAt } from './rate-limit.ts';
+import {
+  createChatRateLimitFeedback,
+  evaluateChatRateLimit,
+  getLastChatSentAt,
+  recordLastChatSentAt,
+} from './rate-limit.ts';
 
 test('사용자별 마지막 채팅 전송 시각을 저장한다', () => {
   const userLastSentAtStore = new Map();
@@ -39,4 +44,14 @@ test('마지막 전송 후 3초 이상 경과하면 전송을 허용한다', () 
   const result = evaluateChatRateLimit(userLastSentAtStore, 'u1', 4000);
 
   assert.deepEqual(result, { ok: true });
+});
+
+test('레이트리밋 위반 피드백 메시지를 생성한다', () => {
+  const feedback = createChatRateLimitFeedback(1200);
+
+  assert.deepEqual(feedback, {
+    type: 'CHAT_RATE_LIMIT_NOTICE',
+    message: '2초 후에 다시 메시지를 보낼 수 있습니다.',
+    retryAfterMs: 1200,
+  });
 });
