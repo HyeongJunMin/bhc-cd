@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 69 |
+| Todo | 68 |
 | In Progress | 0 |
-| Done | 32 |
+| Done | 33 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:23 |
+| Last Updated | 2026-02-22 00:24 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:23 | ROOM-002C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:24 | ROOM-003A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -59,7 +59,7 @@
 | ROOM-002A | Agent C | done | 2026-02-22 00:09 | `node --experimental-strip-types -e ... host` 확인 | - | ROOM-002B | host/입장순 자료구조 추가 완료 |
 | ROOM-002B | Agent C | done | 2026-02-22 00:11 | `node --experimental-strip-types -e ... removeMember` 확인 | - | ROOM-002C | host 이탈 자동 위임 로직 완료 |
 | ROOM-002C | Agent C | done | 2026-02-22 00:23 | `node --experimental-strip-types --test host-policy.test.ts` 통과(2 pass) | - | ROOM-003A | host 위임 이벤트/테스트 완료 |
-| ROOM-003A | - | todo | - | - | - | - | - |
+| ROOM-003A | Agent C | done | 2026-02-22 00:24 | `node --experimental-strip-types -e ... requireHostPermission` 확인 | - | ROOM-003B | 비방장 명령 차단 로직 완료 |
 | ROOM-003B | - | todo | - | - | - | - | - |
 | ROOM-003C | - | todo | - | - | - | - | - |
 | GAME-001A | - | todo | - | - | - | - | - |
