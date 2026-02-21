@@ -11,6 +11,7 @@ type UserRecord = {
 
 type AuthState = {
   nextUserId: number;
+  nextGuestId: number;
   usersByUsername: Map<string, UserRecord>;
 };
 
@@ -20,6 +21,9 @@ type SignupResult =
 type LoginResult =
   | { ok: true; user: UserRecord; accessToken: string; refreshToken: string }
   | { ok: false; statusCode: 400 | 401; errorCode: 'AUTH_INVALID_INPUT' | 'AUTH_INVALID_CREDENTIALS' };
+type GuestLoginResult =
+  | { ok: true; guestId: string; nickname: string; accessToken: string; refreshToken: string }
+  | { ok: false; statusCode: 400; errorCode: 'AUTH_INVALID_INPUT' };
 
 const JWT_SECRET = process.env.AUTH_JWT_SECRET || 'bhc-dev-secret';
 const ACCESS_TOKEN_EXPIRES_SEC = 60 * 15;
@@ -182,9 +186,60 @@ async function handleLogin(req: IncomingMessage, res: ServerResponse, state: Aut
   });
 }
 
+export function guestLogin(state: AuthState, input: { nickname: string | null }): GuestLoginResult {
+  if (!input.nickname) {
+    return { ok: false, statusCode: 400, errorCode: 'AUTH_INVALID_INPUT' };
+  }
+
+  const guestId = `guest-${state.nextGuestId}`;
+  state.nextGuestId += 1;
+
+  return {
+    ok: true,
+    guestId,
+    nickname: input.nickname,
+    accessToken: signJwt({ sub: guestId, nickname: input.nickname, tokenType: 'access', isGuest: true }, ACCESS_TOKEN_EXPIRES_SEC),
+    refreshToken: signJwt(
+      { sub: guestId, nickname: input.nickname, tokenType: 'refresh', isGuest: true },
+      REFRESH_TOKEN_EXPIRES_SEC,
+    ),
+  };
+}
+
+async function handleGuestLogin(req: IncomingMessage, res: ServerResponse, state: AuthState): Promise<void> {
+  const rawBody = await readBody(req);
+  let parsedBody: unknown;
+
+  try {
+    parsedBody = JSON.parse(rawBody || '{}');
+  } catch {
+    writeJson(res, 400, { errorCode: 'AUTH_INVALID_JSON' });
+    return;
+  }
+
+  const nickname = getStringField((parsedBody as Record<string, unknown>).nickname);
+  const result = guestLogin(state, { nickname });
+
+  if (!result.ok) {
+    writeJson(res, result.statusCode, { errorCode: result.errorCode });
+    return;
+  }
+
+  writeJson(res, 200, {
+    guestId: result.guestId,
+    nickname: result.nickname,
+    tokenType: 'Bearer',
+    accessToken: result.accessToken,
+    refreshToken: result.refreshToken,
+    accessTokenExpiresInSec: ACCESS_TOKEN_EXPIRES_SEC,
+    refreshTokenExpiresInSec: REFRESH_TOKEN_EXPIRES_SEC,
+  });
+}
+
 export function createAuthHttpServer() {
   const state: AuthState = {
     nextUserId: 1,
+    nextGuestId: 1,
     usersByUsername: new Map(),
   };
 
@@ -195,6 +250,10 @@ export function createAuthHttpServer() {
     }
     if (req.method === 'POST' && req.url === '/auth/login') {
       await handleLogin(req, res, state);
+      return;
+    }
+    if (req.method === 'POST' && req.url === '/auth/guest') {
+      await handleGuestLogin(req, res, state);
       return;
     }
 
