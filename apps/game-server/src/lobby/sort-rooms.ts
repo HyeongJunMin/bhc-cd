@@ -13,3 +13,16 @@ export function compareRoomsWaitingFirst(a: SortableRoom, b: SortableRoom): numb
 
   return aPriority - bPriority;
 }
+
+export function compareRoomsForLobby(a: SortableRoom, b: SortableRoom): number {
+  const byState = compareRoomsWaitingFirst(a, b);
+  if (byState !== 0) {
+    return byState;
+  }
+
+  if (a.playerCount !== b.playerCount) {
+    return a.playerCount - b.playerCount;
+  }
+
+  return Date.parse(b.createdAt) - Date.parse(a.createdAt);
+}
