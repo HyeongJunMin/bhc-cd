@@ -8,3 +8,7 @@ export type RoomJoinContext = {
 export function isRoomFull(currentPlayerCount: number): boolean {
   return currentPlayerCount >= ROOM_MAX_PLAYERS;
 }
+
+export function isJoinBlockedByState(roomState: RoomJoinContext['roomState']): boolean {
+  return roomState === 'IN_GAME';
+}
