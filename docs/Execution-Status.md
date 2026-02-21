@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 55 |
+| Todo | 54 |
 | In Progress | 0 |
-| Done | 46 |
+| Done | 47 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:41 |
+| Last Updated | 2026-02-22 00:42 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:41 | GAME-004B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:42 | GAME-004C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -73,7 +73,7 @@
 | GAME-003C | Agent C | done | 2026-02-22 00:40 | `node --experimental-strip-types --test game/elimination-policy.test.ts` 통과(3 pass) | - | GAME-004A | 중도 이탈 패배/1인 생존 승리 종료 테스트 완료 |
 | GAME-004A | Agent C | done | 2026-02-22 00:41 | `node --experimental-strip-types --test game/rematch-policy.test.ts` 통과(2 pass) | - | GAME-004B | 재경기 점수 초기화 로직/테스트 완료 |
 | GAME-004B | Agent C | done | 2026-02-22 00:41 | `node --experimental-strip-types --test game/rematch-policy.test.ts` 통과(4 pass) | - | GAME-004C | 재경기 상태 IN_GAME 전이/턴 순서 유지 로직 완료 |
-| GAME-004C | - | todo | - | - | - | - | - |
+| GAME-004C | Agent C | done | 2026-02-22 00:42 | `node --experimental-strip-types --test game/rematch-policy.test.ts` 통과(5 pass) | - | INPUT-001A | 재경기 직후 상태 스냅샷 검증 테스트 완료 |
 | INPUT-001A | - | todo | - | - | - | - | - |
 | INPUT-001B | - | todo | - | - | - | - | - |
 | INPUT-001C | - | todo | - | - | - | - | - |

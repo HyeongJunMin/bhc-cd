@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { resetScoresForRematch, startRematch } from './rematch-policy.ts';
+import { createRematchSnapshot, resetScoresForRematch, startRematch } from './rematch-policy.ts';
 
 test('재경기 시작 시 모든 플레이어 점수를 0으로 초기화한다', () => {
   const initialScoreBoard = {
@@ -57,5 +57,31 @@ test('재경기 시작 시 플레이어가 2명 미만이면 거부한다', () =
   assert.equal(result.ok, false);
   if (!result.ok) {
     assert.equal(result.errorCode, 'GAME_NOT_ENOUGH_PLAYERS');
+  }
+});
+
+test('재경기 직후 스냅샷은 점수 초기화/턴 순서 유지/IN_GAME 상태를 포함한다', () => {
+  const result = createRematchSnapshot(
+    {
+      p1: 10,
+      p2: 4,
+      p3: 3,
+    },
+    {
+      queue: ['p1', 'p2', 'p3'],
+      currentIndex: 1,
+    },
+  );
+
+  assert.equal(result.ok, true);
+  if (result.ok) {
+    assert.equal(result.snapshot.roomState, 'IN_GAME');
+    assert.deepEqual(result.snapshot.scoreBoard, {
+      p1: 0,
+      p2: 0,
+      p3: 0,
+    });
+    assert.deepEqual(result.snapshot.turnState.queue, ['p1', 'p2', 'p3']);
+    assert.equal(result.snapshot.turnState.currentIndex, 0);
   }
 });
