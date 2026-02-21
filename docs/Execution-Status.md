@@ -10,23 +10,23 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 102 |
+| Todo | 101 |
 | In Progress | 0 |
-| Done | 0 |
+| Done | 1 |
 | Blocked | 0 |
-| Last Updated | - |
+| Last Updated | 2026-02-21 23:17 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | - | - |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:17 | INF-001A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
 |---|---|---|---|---|---|---|---|
-| INF-001A | - | todo | - | - | - | - | - |
+| INF-001A | Agent C | done | 2026-02-21 23:17 | `cat package.json` 확인 | - | INF-001B | 루트 package.json 생성 완료 |
 | INF-001B | - | todo | - | - | - | - | - |
 | INF-001C | - | todo | - | - | - | - | - |
 | INF-002A | - | todo | - | - | - | - | - |
