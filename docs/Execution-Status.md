@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 90 |
+| Todo | 89 |
 | In Progress | 0 |
-| Done | 11 |
+| Done | 12 |
 | Blocked | 1 |
-| Last Updated | 2026-02-21 23:41 |
+| Last Updated | 2026-02-21 23:42 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:41 | AUTH-001C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:42 | AUTH-002A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -38,7 +38,7 @@
 | AUTH-001A | Agent C | done | 2026-02-21 23:35 | `cat package.json`, `cat node-pg-migrate.config.js` 확인 | - | AUTH-001B | migration 설정 파일 추가 완료 |
 | AUTH-001B | Agent C | done | 2026-02-21 23:36 | `ls migrations`, `sed migration file` 확인 | - | AUTH-001C | users 테이블 migration 추가 완료 |
 | AUTH-001C | Agent C | done | 2026-02-21 23:41 | `docker exec psql`로 users up/down 검증 | - | AUTH-002A | npm 네트워크 제한으로 동등 SQL 검증 수행 |
-| AUTH-002A | - | todo | - | - | - | - | - |
+| AUTH-002A | Agent C | done | 2026-02-21 23:42 | `sed password.ts` 확인 | - | AUTH-002B | hashPassword 유틸 추가 완료 |
 | AUTH-002B | - | todo | - | - | - | - | - |
 | AUTH-002C | - | todo | - | - | - | - | - |
 | AUTH-003A | - | todo | - | - | - | - | - |
