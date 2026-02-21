@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 89 |
+| Todo | 88 |
 | In Progress | 0 |
-| Done | 12 |
+| Done | 13 |
 | Blocked | 1 |
-| Last Updated | 2026-02-21 23:42 |
+| Last Updated | 2026-02-21 23:45 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:42 | AUTH-002A 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:45 | AUTH-002B 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -39,7 +39,7 @@
 | AUTH-001B | Agent C | done | 2026-02-21 23:36 | `ls migrations`, `sed migration file` 확인 | - | AUTH-001C | users 테이블 migration 추가 완료 |
 | AUTH-001C | Agent C | done | 2026-02-21 23:41 | `docker exec psql`로 users up/down 검증 | - | AUTH-002A | npm 네트워크 제한으로 동등 SQL 검증 수행 |
 | AUTH-002A | Agent C | done | 2026-02-21 23:42 | `sed password.ts` 확인 | - | AUTH-002B | hashPassword 유틸 추가 완료 |
-| AUTH-002B | - | todo | - | - | - | - | - |
+| AUTH-002B | Agent C | done | 2026-02-21 23:45 | `rg`, `sed password.ts` 확인 | - | AUTH-002C | verifyPassword 구현 완료 |
 | AUTH-002C | - | todo | - | - | - | - | - |
 | AUTH-003A | - | todo | - | - | - | - | - |
 | AUTH-003B | - | todo | - | - | - | - | - |
