@@ -9,6 +9,12 @@ export type RoomRoster = {
   membersById: Map<string, RoomMember>;
 };
 
+export type RoomHostEvent = {
+  type: 'HOST_TRANSFERRED';
+  previousHostMemberId: string;
+  nextHostMemberId: string | null;
+};
+
 export function createRoomRoster(): RoomRoster {
   return {
     hostMemberId: null,
@@ -38,4 +44,27 @@ export function removeMemberFromRoster(roster: RoomRoster, memberId: string): Ro
   }
 
   return roster;
+}
+
+export function removeMemberAndCollectHostEvents(
+  roster: RoomRoster,
+  memberId: string,
+): { roster: RoomRoster; events: RoomHostEvent[] } {
+  const previousHostMemberId = roster.hostMemberId;
+  removeMemberFromRoster(roster, memberId);
+
+  if (previousHostMemberId && previousHostMemberId === memberId) {
+    return {
+      roster,
+      events: [
+        {
+          type: 'HOST_TRANSFERRED',
+          previousHostMemberId,
+          nextHostMemberId: roster.hostMemberId,
+        },
+      ],
+    };
+  }
+
+  return { roster, events: [] };
 }

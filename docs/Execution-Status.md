@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 70 |
+| Todo | 69 |
 | In Progress | 0 |
-| Done | 31 |
+| Done | 32 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:11 |
+| Last Updated | 2026-02-22 00:23 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:11 | ROOM-002B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:23 | ROOM-002C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -58,7 +58,7 @@
 | ROOM-001C | Agent C | done | 2026-02-22 00:08 | `node --experimental-strip-types -e ... evaluateRoomJoin` 확인 | - | ROOM-002A | 입장 거부 코드 표준화 완료 |
 | ROOM-002A | Agent C | done | 2026-02-22 00:09 | `node --experimental-strip-types -e ... host` 확인 | - | ROOM-002B | host/입장순 자료구조 추가 완료 |
 | ROOM-002B | Agent C | done | 2026-02-22 00:11 | `node --experimental-strip-types -e ... removeMember` 확인 | - | ROOM-002C | host 이탈 자동 위임 로직 완료 |
-| ROOM-002C | - | todo | - | - | - | - | - |
+| ROOM-002C | Agent C | done | 2026-02-22 00:23 | `node --experimental-strip-types --test host-policy.test.ts` 통과(2 pass) | - | ROOM-003A | host 위임 이벤트/테스트 완료 |
 | ROOM-003A | - | todo | - | - | - | - | - |
 | ROOM-003B | - | todo | - | - | - | - | - |
 | ROOM-003C | - | todo | - | - | - | - | - |
