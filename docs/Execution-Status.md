@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 61 |
+| Todo | 60 |
 | In Progress | 0 |
-| Done | 40 |
+| Done | 41 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:37 |
+| Last Updated | 2026-02-22 00:38 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:37 | GAME-002B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:38 | GAME-002C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -67,7 +67,7 @@
 | GAME-001C | Agent C | done | 2026-02-22 00:31 | `node --experimental-strip-types --test start-policy.test.ts` 통과(3 pass) | - | GAME-002A | 시작 실패 코드 테스트 완료 |
 | GAME-002A | Agent C | done | 2026-02-22 00:36 | `node --experimental-strip-types --test game/turn-policy.test.ts` 통과(3 pass) | - | GAME-002B | 입장순 턴 큐 초기화/순환 테스트 완료 |
 | GAME-002B | Agent C | done | 2026-02-22 00:37 | `node --experimental-strip-types --test game/turn-timer.test.ts` 통과(3 pass) | - | GAME-002C | 10초 턴 타이머 start/cancel 유틸 및 테스트 완료 |
-| GAME-002C | - | todo | - | - | - | - | - |
+| GAME-002C | Agent C | done | 2026-02-22 00:38 | `node --experimental-strip-types --test game/turn-policy.test.ts` 통과(5 pass) | - | GAME-003A | timeout 자동 턴 스킵 처리/테스트 완료 |
 | GAME-003A | - | todo | - | - | - | - | - |
 | GAME-003B | - | todo | - | - | - | - | - |
 | GAME-003C | - | todo | - | - | - | - | - |
