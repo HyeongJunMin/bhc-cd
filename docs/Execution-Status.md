@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 86 |
+| Todo | 85 |
 | In Progress | 0 |
-| Done | 15 |
+| Done | 16 |
 | Blocked | 1 |
-| Last Updated | 2026-02-21 23:50 |
+| Last Updated | 2026-02-21 23:52 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:50 | AUTH-003A 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:52 | AUTH-003B 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -42,7 +42,7 @@
 | AUTH-002B | Agent C | done | 2026-02-21 23:45 | `rg`, `sed password.ts` 확인 | - | AUTH-002C | verifyPassword 구현 완료 |
 | AUTH-002C | Agent C | done | 2026-02-21 23:48 | `node --experimental-strip-types --test ...` 통과(3 pass) | - | AUTH-003A | 비밀번호 유닛테스트 추가 완료 |
 | AUTH-003A | Agent C | done | 2026-02-21 23:50 | `node --experimental-strip-types -e ... signup duplicate` 확인 | - | AUTH-003B | signup/중복검증 로직 추가 완료 |
-| AUTH-003B | - | todo | - | - | - | - | - |
+| AUTH-003B | Agent C | done | 2026-02-21 23:52 | `node --experimental-strip-types -e ... login` 확인 | - | AUTH-003C | login/JWT 발급 로직 구현 완료 |
 | AUTH-003C | - | todo | - | - | - | - | - |
 | LOB-001A | - | todo | - | - | - | - | - |
 | LOB-001B | - | todo | - | - | - | - | - |
