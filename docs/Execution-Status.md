@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 72 |
+| Todo | 71 |
 | In Progress | 0 |
-| Done | 29 |
+| Done | 30 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:08 |
+| Last Updated | 2026-02-22 00:09 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:08 | ROOM-001C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:09 | ROOM-002A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -56,7 +56,7 @@
 | ROOM-001A | Agent C | done | 2026-02-22 00:06 | `node --experimental-strip-types -e ... isRoomFull` 확인 | - | ROOM-001B | 최대 6인 제한 로직 추가 완료 |
 | ROOM-001B | Agent C | done | 2026-02-22 00:07 | `node --experimental-strip-types -e ... isJoinBlockedByState` 확인 | - | ROOM-001C | IN_GAME 입장 차단 로직 추가 완료 |
 | ROOM-001C | Agent C | done | 2026-02-22 00:08 | `node --experimental-strip-types -e ... evaluateRoomJoin` 확인 | - | ROOM-002A | 입장 거부 코드 표준화 완료 |
-| ROOM-002A | - | todo | - | - | - | - | - |
+| ROOM-002A | Agent C | done | 2026-02-22 00:09 | `node --experimental-strip-types -e ... host` 확인 | - | ROOM-002B | host/입장순 자료구조 추가 완료 |
 | ROOM-002B | - | todo | - | - | - | - | - |
 | ROOM-002C | - | todo | - | - | - | - | - |
 | ROOM-003A | - | todo | - | - | - | - | - |
