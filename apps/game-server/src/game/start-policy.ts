@@ -20,5 +20,9 @@ export function startGameRequest(context: GameStartContext): StartResult {
     return { ok: false, errorCode: 'ROOM_HOST_ONLY' };
   }
 
+  if (context.playerIds.length < 2) {
+    return { ok: false, errorCode: 'GAME_NOT_ENOUGH_PLAYERS' };
+  }
+
   return { ok: true, nextRoomState: 'IN_GAME' };
 }
