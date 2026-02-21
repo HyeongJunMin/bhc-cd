@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 48 |
+| Todo | 47 |
 | In Progress | 0 |
-| Done | 53 |
+| Done | 54 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:47 |
+| Last Updated | 2026-02-22 00:48 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:47 | INPUT-002C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:48 | INPUT-002D 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -80,7 +80,7 @@
 | INPUT-002A | Agent C | done | 2026-02-22 00:45 | `node --experimental-strip-types --test input/control-mapping.test.ts` 통과(2 pass) | - | INPUT-002B | 수평 360도 회전 매핑 함수/테스트 완료 |
 | INPUT-002B | Agent C | done | 2026-02-22 00:46 | `node --experimental-strip-types --test input/control-mapping.test.ts` 통과(4 pass) | - | INPUT-002C | 수직 각도 0~89 클램프 매핑 완료 |
 | INPUT-002C | Agent C | done | 2026-02-22 00:47 | `node --experimental-strip-types --test input/control-mapping.test.ts` 통과(6 pass) | - | INPUT-002D | drag px -> m/s 선형 매핑 함수/테스트 완료 |
-| INPUT-002D | - | todo | - | - | - | - | - |
+| INPUT-002D | Agent C | done | 2026-02-22 00:48 | `node --experimental-strip-types --test input/control-mapping.test.ts` 통과(9 pass) | - | PHY-001A | WASD 당점 이동 벡터 처리 로직/테스트 완료 |
 | PHY-001A | - | todo | - | - | - | - | - |
 | PHY-001B | - | todo | - | - | - | - | - |
 | PHY-001C | - | todo | - | - | - | - | - |

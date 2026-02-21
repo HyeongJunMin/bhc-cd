@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  applyWASDImpactOffset,
   clampDragPx,
   clampCueElevationDeg,
   mapDragPxToSpeedMps,
@@ -54,4 +55,25 @@ test('드래그 픽셀을 선속도로 선형 매핑한다', () => {
   assertAlmostEqual(mapDragPxToSpeedMps(10), 1);
   assertAlmostEqual(mapDragPxToSpeedMps(1000), 13.89);
   assertAlmostEqual(mapDragPxToSpeedMps(505), 7.445);
+});
+
+test('WASD 입력으로 당점 오프셋을 누적 이동한다', () => {
+  const nextOffset = applyWASDImpactOffset({ x: 0, y: 0 }, ['W', 'D']);
+
+  assertAlmostEqual(nextOffset.x, 0.005);
+  assertAlmostEqual(nextOffset.y, 0.005);
+});
+
+test('상반된 WASD 입력은 상쇄된다', () => {
+  const nextOffset = applyWASDImpactOffset({ x: 0.01, y: -0.01 }, ['A', 'D', 'W', 'S']);
+
+  assertAlmostEqual(nextOffset.x, 0.01);
+  assertAlmostEqual(nextOffset.y, -0.01);
+});
+
+test('당점 오프셋은 최대 반지름 범위를 넘지 않는다', () => {
+  const nextOffset = applyWASDImpactOffset({ x: 0.03, y: -0.03 }, ['D', 'S'], 0.01);
+
+  assertAlmostEqual(nextOffset.x, 0.03075);
+  assertAlmostEqual(nextOffset.y, -0.03075);
 });

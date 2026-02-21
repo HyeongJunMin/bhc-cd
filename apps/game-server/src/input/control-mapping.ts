@@ -46,3 +46,48 @@ export function mapDragPxToSpeedMps(dragPx: number): number {
 
   return MIN_SPEED_MPS + ratio * (MAX_SPEED_MPS - MIN_SPEED_MPS);
 }
+
+export type ImpactOffset = {
+  x: number;
+  y: number;
+};
+
+function clampImpactOffset(value: number, maxOffset: number): number {
+  if (value < -maxOffset) {
+    return -maxOffset;
+  }
+
+  if (value > maxOffset) {
+    return maxOffset;
+  }
+
+  return value;
+}
+
+export function applyWASDImpactOffset(
+  currentOffset: ImpactOffset,
+  keys: string[],
+  step: number = 0.005,
+  maxOffset: number = 0.03075,
+): ImpactOffset {
+  let nextX = currentOffset.x;
+  let nextY = currentOffset.y;
+
+  if (keys.includes('A')) {
+    nextX -= step;
+  }
+  if (keys.includes('D')) {
+    nextX += step;
+  }
+  if (keys.includes('W')) {
+    nextY += step;
+  }
+  if (keys.includes('S')) {
+    nextY -= step;
+  }
+
+  return {
+    x: clampImpactOffset(nextX, maxOffset),
+    y: clampImpactOffset(nextY, maxOffset),
+  };
+}
