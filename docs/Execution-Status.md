@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 75 |
+| Todo | 74 |
 | In Progress | 0 |
-| Done | 26 |
+| Done | 27 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:04 |
+| Last Updated | 2026-02-22 00:06 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:04 | LOB-003C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:06 | ROOM-001A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -53,7 +53,7 @@
 | LOB-003A | Agent C | done | 2026-02-22 00:02 | `node --experimental-strip-types -e ...` 확인 | - | LOB-003B | WAITING 우선 comparator 구현 완료 |
 | LOB-003B | Agent C | done | 2026-02-22 00:03 | `node --experimental-strip-types -e ... sort` 확인 | - | LOB-003C | 2차/3차 정렬 기준 구현 완료 |
 | LOB-003C | Agent C | done | 2026-02-22 00:04 | `node --experimental-strip-types --test sort-rooms.test.ts` 통과(1 pass) | - | ROOM-001A | 로비 정렬 테스트 완료 |
-| ROOM-001A | - | todo | - | - | - | - | - |
+| ROOM-001A | Agent C | done | 2026-02-22 00:06 | `node --experimental-strip-types -e ... isRoomFull` 확인 | - | ROOM-001B | 최대 6인 제한 로직 추가 완료 |
 | ROOM-001B | - | todo | - | - | - | - | - |
 | ROOM-001C | - | todo | - | - | - | - | - |
 | ROOM-002A | - | todo | - | - | - | - | - |
