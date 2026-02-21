@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 79 |
+| Todo | 78 |
 | In Progress | 0 |
-| Done | 22 |
+| Done | 23 |
 | Blocked | 1 |
-| Last Updated | 2026-02-21 23:59 |
+| Last Updated | 2026-02-22 00:01 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:59 | LOB-002B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:01 | LOB-002C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -49,7 +49,7 @@
 | LOB-001C | Agent C | done | 2026-02-21 23:56 | `cat packages/shared-types/src/index.ts` 확인 | - | LOB-002A | shared-types export 경로 정리 완료 |
 | LOB-002A | Agent C | done | 2026-02-21 23:58 | `node --experimental-strip-types -e ...` 확인 | - | LOB-002B | 제목 15자 유효성 검사 구현 완료 |
 | LOB-002B | Agent C | done | 2026-02-21 23:59 | `node --experimental-strip-types -e ... createRoom` 확인 | - | LOB-002C | 방 생성(중복 허용) 로직 추가 완료 |
-| LOB-002C | - | todo | - | - | - | - | - |
+| LOB-002C | Agent C | done | 2026-02-22 00:01 | `node --experimental-strip-types --test lobby/http.test.ts` 통과(3 pass) | - | LOB-003A | 방 생성 정책 테스트 완료 |
 | LOB-003A | - | todo | - | - | - | - | - |
 | LOB-003B | - | todo | - | - | - | - | - |
 | LOB-003C | - | todo | - | - | - | - | - |
