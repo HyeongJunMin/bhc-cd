@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 59 |
+| Todo | 58 |
 | In Progress | 0 |
-| Done | 42 |
+| Done | 43 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 00:38 |
+| Last Updated | 2026-02-22 00:39 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:38 | GAME-003A 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 00:39 | GAME-003B 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -69,7 +69,7 @@
 | GAME-002B | Agent C | done | 2026-02-22 00:37 | `node --experimental-strip-types --test game/turn-timer.test.ts` 통과(3 pass) | - | GAME-002C | 10초 턴 타이머 start/cancel 유틸 및 테스트 완료 |
 | GAME-002C | Agent C | done | 2026-02-22 00:38 | `node --experimental-strip-types --test game/turn-policy.test.ts` 통과(5 pass) | - | GAME-003A | timeout 자동 턴 스킵 처리/테스트 완료 |
 | GAME-003A | Agent C | done | 2026-02-22 00:38 | `node --experimental-strip-types --test game/score-policy.test.ts` 통과(3 pass) | - | GAME-003B | 점수판 초기화/점수 증가 내부 함수 구현 완료 |
-| GAME-003B | - | todo | - | - | - | - | - |
+| GAME-003B | Agent C | done | 2026-02-22 00:39 | `node --experimental-strip-types --test game/score-policy.test.ts` 통과(5 pass) | - | GAME-003C | 10점 도달 즉시 종료 분기 로직/테스트 완료 |
 | GAME-003C | - | todo | - | - | - | - | - |
 | GAME-004A | - | todo | - | - | - | - | - |
 | GAME-004B | - | todo | - | - | - | - | - |
