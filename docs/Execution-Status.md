@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 84 |
+| Todo | 83 |
 | In Progress | 0 |
-| Done | 17 |
+| Done | 18 |
 | Blocked | 1 |
-| Last Updated | 2026-02-21 23:53 |
+| Last Updated | 2026-02-21 23:54 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:53 | AUTH-003C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-21 23:54 | LOB-001A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -44,7 +44,7 @@
 | AUTH-003A | Agent C | done | 2026-02-21 23:50 | `node --experimental-strip-types -e ... signup duplicate` 확인 | - | AUTH-003B | signup/중복검증 로직 추가 완료 |
 | AUTH-003B | Agent C | done | 2026-02-21 23:52 | `node --experimental-strip-types -e ... login` 확인 | - | AUTH-003C | login/JWT 발급 로직 구현 완료 |
 | AUTH-003C | Agent C | done | 2026-02-21 23:53 | `node --experimental-strip-types --test http.test.ts` 통과(2 pass) | - | LOB-001A | guest 로그인/통합 테스트 완료 |
-| LOB-001A | - | todo | - | - | - | - | - |
+| LOB-001A | Agent C | done | 2026-02-21 23:54 | `cat room-summary.ts` 확인 | - | LOB-001B | RoomSummary 타입 추가 완료 |
 | LOB-001B | - | todo | - | - | - | - | - |
 | LOB-001C | - | todo | - | - | - | - | - |
 | LOB-002A | - | todo | - | - | - | - | - |
