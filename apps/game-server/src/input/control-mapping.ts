@@ -6,3 +6,19 @@ export function normalizeDirectionDeg(directionDeg: number): number {
 export function mapHorizontalRotation(currentDirectionDeg: number, deltaDeg: number): number {
   return normalizeDirectionDeg(currentDirectionDeg + deltaDeg);
 }
+
+export function clampCueElevationDeg(cueElevationDeg: number): number {
+  if (cueElevationDeg < 0) {
+    return 0;
+  }
+
+  if (cueElevationDeg > 89) {
+    return 89;
+  }
+
+  return cueElevationDeg;
+}
+
+export function mapVerticalRotation(currentCueElevationDeg: number, deltaDeg: number): number {
+  return clampCueElevationDeg(currentCueElevationDeg + deltaDeg);
+}
