@@ -2,8 +2,10 @@
   "name": "@bhc/game-server",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "echo 'game-server dev placeholder'",
+    "dev": "node --experimental-strip-types src/main.ts",
+    "start": "node --experimental-strip-types src/main.ts",
     "build": "echo 'game-server build placeholder'",
     "test": "echo 'game-server test placeholder'",
     "lint": "echo 'game-server lint placeholder'",
