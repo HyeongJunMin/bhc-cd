@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 14 |
+| Todo | 13 |
 | In Progress | 0 |
-| Done | 87 |
+| Done | 88 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:34 |
+| Last Updated | 2026-02-22 10:35 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:34 | RULE-004C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:35 | RULE-005A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -114,7 +114,7 @@
 | RULE-004A | Agent C | done | 2026-02-22 10:32 | `node --experimental-strip-types --test packages/physics-core/src/rack-layout.test.ts` 통과(2 pass) | - | RULE-004B | 시작 배치 좌표 상수 정의 완료 |
 | RULE-004B | Agent C | done | 2026-02-22 10:33 | `node --experimental-strip-types --test packages/physics-core/src/rack-layout.test.ts` 통과(3 pass) | - | RULE-004C | 시작 배치 적용 함수 구현 완료 |
 | RULE-004C | Agent C | done | 2026-02-22 10:34 | `node --experimental-strip-types --test packages/physics-core/src/rack-layout.test.ts` 통과(4 pass) | - | RULE-005A | 재경기 재배치+초기상태 검증 테스트 완료 |
-| RULE-005A | - | todo | - | - | - | - | - |
+| RULE-005A | Agent C | done | 2026-02-22 10:35 | `node --experimental-strip-types --test packages/physics-core/src/physics-events.test.ts` 통과(2 pass) | - | RULE-005B | 물리 이벤트 도메인 타입 정의 완료 |
 | RULE-005B | - | todo | - | - | - | - | - |
 | RULE-005C | - | todo | - | - | - | - | - |
 | RULE-005D | - | todo | - | - | - | - | - |
