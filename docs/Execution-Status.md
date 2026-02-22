@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 113 |
-| Todo | 2 |
+| Todo | 1 |
 | In Progress | 0 |
-| Done | 110 |
+| Done | 111 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 17:25 |
+| Last Updated | 2026-02-22 17:29 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | WEB-AUTH-001C | done | 2026-02-22 17:25 | /api/auth/* -> 9211 프록시 연동 완료 |
+| Agent A (web) | WEB-AUTH-001D | done | 2026-02-22 17:29 | 토큰 저장 및 /lobby 이동 경로 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:54 | INF-002C 재시도(출력 없음, 여전히 blocked) |
 
@@ -137,5 +137,5 @@
 | WEB-AUTH-001A | Agent A | done | 2026-02-22 17:20 | `WEB_PORT=9217 pnpm --filter @bhc/web run dev`, `curl -sS http://localhost:9217/login \| head -n 5` 확인 | - | WEB-AUTH-001B | `/login` 라우트 및 기본 인증 페이지 골격 추가 완료 |
 | WEB-AUTH-001B | Agent A | done | 2026-02-22 17:22 | `WEB_PORT=9217 pnpm --filter @bhc/web run dev`, `curl -sS http://localhost:9217/login \| rg \"login-form\|signup-form\|guest-form\"` 확인 | - | WEB-AUTH-001C | 로그인/회원가입/게스트 폼 UI 및 메시지 영역 구성 완료 |
 | WEB-AUTH-001C | Agent A | done | 2026-02-22 17:25 | `pnpm --filter @bhc/game-server run dev`, `WEB_PORT=9217 pnpm --filter @bhc/web run dev`, `curl -sS -X POST http://localhost:9217/api/auth/*` 3종 확인 | - | WEB-AUTH-001D | 웹 서버 인증 프록시 및 폼 제출 API 연동 완료 |
-| WEB-AUTH-001D | - | todo | - | - | - | - | - |
+| WEB-AUTH-001D | Agent A | done | 2026-02-22 17:29 | `WEB_PORT=9217 pnpm --filter @bhc/web run dev`, `curl -sS http://localhost:9217/login \| rg \"bhc_auth\|/lobby\"`, `curl -sS http://localhost:9217/lobby` 확인 | - | WEB-AUTH-001E | 인증 성공 시 토큰 localStorage 저장 및 /lobby 페이지 라우트 구현 완료 |
 | WEB-AUTH-001E | - | todo | - | - | - | - | - |

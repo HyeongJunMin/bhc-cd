@@ -228,7 +228,15 @@ function renderLoginPage(): string {
         setMessage('로그인 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
         return;
       }
-      setMessage('로그인 성공: ' + result.data.username, 'ok');
+      localStorage.setItem('bhc_auth', JSON.stringify({
+        tokenType: result.data.tokenType,
+        accessToken: result.data.accessToken,
+        refreshToken: result.data.refreshToken,
+        userId: result.data.userId,
+        username: result.data.username,
+      }));
+      setMessage('로그인 성공, 로비로 이동합니다.', 'ok');
+      window.location.href = '/lobby';
     });
 
     document.getElementById('guest-form').addEventListener('submit', async (event) => {
@@ -243,7 +251,96 @@ function renderLoginPage(): string {
         setMessage('게스트 로그인 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
         return;
       }
-      setMessage('게스트 로그인 성공: ' + result.data.nickname, 'ok');
+      localStorage.setItem('bhc_auth', JSON.stringify({
+        tokenType: result.data.tokenType,
+        accessToken: result.data.accessToken,
+        refreshToken: result.data.refreshToken,
+        guestId: result.data.guestId,
+        nickname: result.data.nickname,
+      }));
+      setMessage('게스트 로그인 성공, 로비로 이동합니다.', 'ok');
+      window.location.href = '/lobby';
+    });
+  </script>
+</body>
+</html>`;
+}
+
+function renderLobbyPage(): string {
+  return `<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BHC Lobby</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    main {
+      width: min(760px, 100%);
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 24px;
+    }
+    pre {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #0b5fff;
+      color: #fff;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>로비</h1>
+    <p>인증 세션 확인이 완료되면 로비 화면으로 진입합니다.</p>
+    <pre id="session-view">세션을 확인하는 중...</pre>
+    <button id="logout-btn" type="button">로그아웃</button>
+    <a href="/login">로그인으로 이동</a>
+  </main>
+  <script>
+    const sessionRaw = localStorage.getItem('bhc_auth');
+    const sessionView = document.getElementById('session-view');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    if (!sessionRaw) {
+      window.location.href = '/login';
+    } else {
+      let parsed = null;
+      try {
+        parsed = JSON.parse(sessionRaw);
+      } catch {
+        localStorage.removeItem('bhc_auth');
+        window.location.href = '/login';
+      }
+      if (parsed) {
+        sessionView.textContent = JSON.stringify(parsed, null, 2);
+      }
+    }
+
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('bhc_auth');
+      window.location.href = '/login';
     });
   </script>
 </body>
@@ -281,9 +378,16 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  if (req.url === '/lobby') {
+    res.statusCode = 200;
+    res.setHeader('content-type', 'text/html; charset=utf-8');
+    res.end(renderLobbyPage());
+    return;
+  }
+
   res.statusCode = 200;
   res.setHeader('content-type', 'text/html; charset=utf-8');
-  res.end('<!doctype html><html><head><meta charset="utf-8"><title>BHC Web</title></head><body><h1>BHC Web</h1><p>Server is running.</p><a href="/login">/login</a></body></html>');
+  res.end('<!doctype html><html><head><meta charset="utf-8"><title>BHC Web</title></head><body><h1>BHC Web</h1><p>Server is running.</p><a href="/login">/login</a> <a href="/lobby">/lobby</a></body></html>');
 });
 
 server.listen(webPort, () => {
