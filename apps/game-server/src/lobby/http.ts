@@ -3,6 +3,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from 'node:ht
 import { paginateRooms } from './pagination.ts';
 import { compareRoomsForLobby } from './sort-rooms.ts';
 import { validateRoomTitle } from './validate-room-title.ts';
+import { evaluateRoomJoin } from '../room/join-policy.ts';
 
 type LobbyRoom = {
   roomId: string;
@@ -20,6 +21,10 @@ type LobbyState = {
 type CreateRoomResult =
   | { ok: true; room: LobbyRoom }
   | { ok: false; statusCode: 400; errorCode: 'ROOM_TITLE_REQUIRED' | 'ROOM_TITLE_TOO_LONG' };
+
+type JoinRoomResult =
+  | { ok: true; room: LobbyRoom }
+  | { ok: false; statusCode: 404 | 409; errorCode: 'ROOM_NOT_FOUND' | 'ROOM_FULL' | 'ROOM_IN_GAME' };
 
 type ListRoomsResult = {
   items: LobbyRoom[];
@@ -111,6 +116,41 @@ function handleListRooms(req: IncomingMessage, res: ServerResponse, state: Lobby
   writeJson(res, 200, page);
 }
 
+export function joinRoom(state: LobbyState, roomId: string): JoinRoomResult {
+  const room = state.rooms.find((item) => item.roomId === roomId);
+  if (!room) {
+    return { ok: false, statusCode: 404, errorCode: 'ROOM_NOT_FOUND' };
+  }
+
+  const decision = evaluateRoomJoin({
+    currentPlayerCount: room.playerCount,
+    roomState: room.state,
+  });
+  if (!decision.ok) {
+    return { ok: false, statusCode: 409, errorCode: decision.errorCode };
+  }
+
+  room.playerCount += 1;
+  return { ok: true, room };
+}
+
+function handleJoinRoom(req: IncomingMessage, res: ServerResponse, state: LobbyState): void {
+  const match = req.url?.match(/^\/lobby\/rooms\/([^/]+)\/join$/);
+  const roomId = match?.[1];
+  if (!roomId) {
+    writeJson(res, 404, { errorCode: 'ROOM_NOT_FOUND' });
+    return;
+  }
+
+  const result = joinRoom(state, roomId);
+  if (!result.ok) {
+    writeJson(res, result.statusCode, { errorCode: result.errorCode });
+    return;
+  }
+
+  writeJson(res, 200, { room: result.room });
+}
+
 export function createLobbyHttpServer() {
   const state: LobbyState = {
     nextRoomId: 1,
@@ -125,6 +165,11 @@ export function createLobbyHttpServer() {
 
     if (req.method === 'POST' && req.url === '/lobby/rooms') {
       await handleCreateRoom(req, res, state);
+      return;
+    }
+
+    if (req.method === 'POST' && req.url?.startsWith('/lobby/rooms/') && req.url.endsWith('/join')) {
+      handleJoinRoom(req, res, state);
       return;
     }
 

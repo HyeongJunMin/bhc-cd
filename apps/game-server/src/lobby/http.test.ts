@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { createLobbyHttpServer, createRoom, listRooms } from './http.ts';
+import { createLobbyHttpServer, createRoom, joinRoom, listRooms } from './http.ts';
 
 test('방 생성 성공: 유효 제목이면 생성된다', () => {
   const { state } = createLobbyHttpServer();
@@ -49,4 +49,28 @@ test('방 목록 조회: WAITING 우선, 인원 적은 순, 최신 생성 순으
   assert.equal(page.items[0].title, 'third');
   assert.equal(page.items[1].title, 'second');
   assert.equal(page.items[2].title, 'first');
+});
+
+test('방 입장 성공: 대기방 정원 미만이면 입장된다', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'join-room' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+
+  const joined = joinRoom(state, created.room.roomId);
+  assert.equal(joined.ok, true);
+  if (joined.ok) {
+    assert.equal(joined.room.playerCount, 1);
+  }
+});
+
+test('방 입장 실패: 존재하지 않는 방이면 ROOM_NOT_FOUND', () => {
+  const { state } = createLobbyHttpServer();
+  const joined = joinRoom(state, 'room-999');
+  assert.equal(joined.ok, false);
+  if (!joined.ok) {
+    assert.equal(joined.errorCode, 'ROOM_NOT_FOUND');
+  }
 });

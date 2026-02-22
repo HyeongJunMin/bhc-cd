@@ -222,6 +222,9 @@
 #### WEB-LOBBY-001 로비 방 목록/생성 UI
 - `WEB-LOBBY-001`: `/lobby`에서 방 목록 조회/방 생성이 동작하도록 로비 API 연동
 
+#### WEB-ROOM-001 로비 방 입장 연결
+- `WEB-ROOM-001`: `/lobby`에서 방 입장 버튼으로 `/room/:id` 진입이 동작하도록 join API 연동
+
 ## 4. 추천 착수 순서 (마이크로)
 1. `INF-001A` -> `INF-001C`
 2. `INF-002A` -> `INF-002C`
@@ -235,3 +238,4 @@
 10. `RULE-001A` -> `RULE-010D`
 11. `WEB-AUTH-001A` -> `WEB-AUTH-001E`
 12. `WEB-LOBBY-001`
+13. `WEB-ROOM-001`
