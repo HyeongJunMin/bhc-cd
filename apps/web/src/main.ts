@@ -1,8 +1,9 @@
-import { createServer } from 'node:http';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 
 const PORT_MIN = 9211;
 const PORT_MAX = 9220;
 const DEFAULT_WEB_PORT = 9213;
+const DEFAULT_AUTH_SERVER_URL = `http://localhost:${PORT_MIN}`;
 
 function parsePort(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -15,7 +16,49 @@ function parsePort(name: string, fallback: number): number {
   return value;
 }
 
-const webPort = parsePort('WEB_PORT', DEFAULT_WEB_PORT);
+function writeJson(res: ServerResponse, statusCode: number, payload: unknown): void {
+  res.statusCode = statusCode;
+  res.setHeader('content-type', 'application/json; charset=utf-8');
+  res.end(JSON.stringify(payload));
+}
+
+function readBody(req: IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.setEncoding('utf8');
+    req.on('data', (chunk) => {
+      data += chunk;
+    });
+    req.on('end', () => resolve(data));
+    req.on('error', reject);
+  });
+}
+
+async function proxyAuthRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  authServerUrl: string,
+  authPath: '/auth/signup' | '/auth/login' | '/auth/guest',
+): Promise<void> {
+  const body = await readBody(req);
+
+  try {
+    const upstream = await fetch(`${authServerUrl}${authPath}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json; charset=utf-8',
+      },
+      body: body || '{}',
+    });
+
+    const text = await upstream.text();
+    res.statusCode = upstream.status;
+    res.setHeader('content-type', 'application/json; charset=utf-8');
+    res.end(text);
+  } catch {
+    writeJson(res, 502, { errorCode: 'AUTH_SERVER_UNAVAILABLE' });
+  }
+}
 
 function renderLoginPage(): string {
   return `<!doctype html>
@@ -33,6 +76,8 @@ function renderLoginPage(): string {
       --line: #d1d5db;
       --primary: #0b5fff;
       --primary-dark: #0a4fe0;
+      --ok: #0f766e;
+      --error: #b91c1c;
     }
     * { box-sizing: border-box; }
     body {
@@ -46,7 +91,7 @@ function renderLoginPage(): string {
       padding: 24px;
     }
     .card {
-      width: min(720px, 100%);
+      width: min(760px, 100%);
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 16px;
@@ -58,7 +103,7 @@ function renderLoginPage(): string {
     .grid {
       display: grid;
       gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     }
     .panel {
       border: 1px solid var(--line);
@@ -91,10 +136,13 @@ function renderLoginPage(): string {
     button:hover { background: var(--primary-dark); }
     #auth-message {
       margin-top: 16px;
-      min-height: 22px;
+      min-height: 24px;
       font-size: 14px;
       color: var(--muted);
+      white-space: pre-wrap;
     }
+    #auth-message.ok { color: var(--ok); }
+    #auth-message.error { color: var(--error); }
   </style>
 </head>
 <body>
@@ -131,17 +179,98 @@ function renderLoginPage(): string {
         </form>
       </article>
     </section>
-    <p id="auth-message">API 연동 전 단계: UI 구성 완료</p>
+    <p id="auth-message">API 연동 대기 중</p>
   </main>
+  <script>
+    const message = document.getElementById('auth-message');
+
+    function setMessage(text, type) {
+      message.textContent = text;
+      message.className = type || '';
+    }
+
+    async function postJson(url, payload) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json().catch(() => ({}));
+      return { ok: response.ok, status: response.status, data };
+    }
+
+    document.getElementById('signup-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = {
+        username: form.username.value,
+        password: form.password.value,
+      };
+      setMessage('회원가입 요청 중...', '');
+      const result = await postJson('/api/auth/signup', payload);
+      if (!result.ok) {
+        setMessage('회원가입 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
+        return;
+      }
+      setMessage('회원가입 성공: ' + result.data.username, 'ok');
+    });
+
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = {
+        username: form.username.value,
+        password: form.password.value,
+      };
+      setMessage('로그인 요청 중...', '');
+      const result = await postJson('/api/auth/login', payload);
+      if (!result.ok) {
+        setMessage('로그인 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
+        return;
+      }
+      setMessage('로그인 성공: ' + result.data.username, 'ok');
+    });
+
+    document.getElementById('guest-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const payload = {
+        nickname: form.nickname.value,
+      };
+      setMessage('게스트 로그인 요청 중...', '');
+      const result = await postJson('/api/auth/guest', payload);
+      if (!result.ok) {
+        setMessage('게스트 로그인 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
+        return;
+      }
+      setMessage('게스트 로그인 성공: ' + result.data.nickname, 'ok');
+    });
+  </script>
 </body>
 </html>`;
 }
 
-const server = createServer((req, res) => {
+const webPort = parsePort('WEB_PORT', DEFAULT_WEB_PORT);
+const authServerUrl = process.env.AUTH_SERVER_URL || DEFAULT_AUTH_SERVER_URL;
+
+const server = createServer(async (req, res) => {
   if (req.url === '/health') {
-    res.statusCode = 200;
-    res.setHeader('content-type', 'application/json; charset=utf-8');
-    res.end(JSON.stringify({ ok: true }));
+    writeJson(res, 200, { ok: true });
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/auth/signup') {
+    await proxyAuthRequest(req, res, authServerUrl, '/auth/signup');
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/auth/login') {
+    await proxyAuthRequest(req, res, authServerUrl, '/auth/login');
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/api/auth/guest') {
+    await proxyAuthRequest(req, res, authServerUrl, '/auth/guest');
     return;
   }
 
@@ -159,6 +288,7 @@ const server = createServer((req, res) => {
 
 server.listen(webPort, () => {
   console.log(`[web] listening on http://localhost:${webPort}`);
+  console.log(`[web] auth proxy -> ${authServerUrl}`);
 });
 
 function shutdown(): void {
