@@ -25,3 +25,34 @@
 ## 사용 원칙
 - 가능한 한 HTTP status와 별개로 `errorCode`를 항상 반환한다.
 - 신규 에러 추가 시 `packages/shared-types/src/error-codes.ts`와 본 문서를 함께 갱신한다.
+
+## 기존 API 매핑
+
+### Auth API
+- `POST /auth/signup`
+  - `AUTH_INVALID_INPUT`
+  - `AUTH_DUPLICATE_USERNAME`
+- `POST /auth/login`
+  - `AUTH_INVALID_INPUT`
+  - `AUTH_INVALID_CREDENTIALS`
+- `POST /auth/guest`
+  - `AUTH_INVALID_INPUT`
+
+### Lobby/Room API
+- `POST /lobby/rooms`
+  - `ROOM_TITLE_REQUIRED`
+  - `ROOM_TITLE_TOO_LONG`
+- `room join` 정책
+  - `ROOM_FULL`
+  - `ROOM_IN_GAME`
+  - `ROOM_SPECTATOR_NOT_ALLOWED`
+
+### Game/Input/Chat 정책
+- `start game` 정책
+  - `ROOM_HOST_ONLY`
+  - `GAME_NOT_ENOUGH_PLAYERS`
+  - `GAME_ALREADY_STARTED`
+- `shot input` 진입점
+  - `SHOT_INPUT_SCHEMA_INVALID`
+- `chat send` 정책
+  - `CHAT_RATE_LIMITED`

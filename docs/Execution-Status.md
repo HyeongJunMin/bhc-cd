@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 2 |
+| Todo | 1 |
 | In Progress | 0 |
-| Done | 99 |
+| Done | 100 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:43 |
+| Last Updated | 2026-02-22 10:44 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:43 | RULE-008B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:44 | RULE-008C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -126,7 +126,7 @@
 | RULE-007C | Agent C | done | 2026-02-22 10:42 | `node --experimental-strip-types --test apps/game-server/src/lobby/pagination.test.ts` 통과(5 pass) | - | RULE-008A | 마지막 페이지/중복요청 경계 테스트 완료 |
 | RULE-008A | Agent C | done | 2026-02-22 10:42 | `node --experimental-strip-types --test packages/shared-types/src/error-codes.test.ts` 통과(1 pass) | - | RULE-008B | 공통 에러 코드 enum 정의 완료 |
 | RULE-008B | Agent C | done | 2026-02-22 10:43 | `cat docs/Error-Codes.md` 확인 | - | RULE-008C | 공통 에러 코드 문서 작성 완료 |
-| RULE-008C | - | todo | - | - | - | - | - |
+| RULE-008C | Agent C | done | 2026-02-22 10:44 | `cat docs/Error-Codes.md` 확인 | - | RULE-009A | 기존 API 응답 코드 매핑 정리 완료 |
 | RULE-009A | - | todo | - | - | - | - | - |
 | RULE-009B | - | todo | - | - | - | - | - |
 | RULE-009C | - | todo | - | - | - | - | - |
