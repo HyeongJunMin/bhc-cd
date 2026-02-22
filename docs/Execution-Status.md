@@ -10,9 +10,9 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 33 |
+| Todo | 32 |
 | In Progress | 0 |
-| Done | 68 |
+| Done | 69 |
 | Blocked | 1 |
 | Last Updated | 2026-02-22 10:17 |
 
@@ -21,7 +21,7 @@
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:17 | QA-001B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:17 | QA-001C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -95,7 +95,7 @@
 | CHAT-002C | Agent C | done | 2026-02-22 00:59 | `node --experimental-strip-types --test apps/game-server/src/chat/rate-limit.test.ts` 통과(5 pass) | - | QA-001A | 레이트리밋 위반 피드백 메시지 처리/테스트 완료 |
 | QA-001A | Agent C | done | 2026-02-22 10:16 | `node --experimental-strip-types --test apps/game-server/src/qa/core-scenarios.test.ts` 통과(1 pass) | - | QA-001B | 로그인->로비->방입장 핵심 시나리오 작성 완료 |
 | QA-001B | Agent C | done | 2026-02-22 10:17 | `node --experimental-strip-types --test apps/game-server/src/qa/core-scenarios.test.ts` 통과(2 pass) | - | QA-001C | 시작->플레이->10점 종료 핵심 시나리오 작성 완료 |
-| QA-001C | - | todo | - | - | - | - | - |
+| QA-001C | Agent C | done | 2026-02-22 10:17 | `node --experimental-strip-types --test apps/game-server/src/qa/core-scenarios.test.ts` 통과(3 pass) | - | QA-002A | 타임아웃/중도이탈/강퇴 핵심 시나리오 작성 완료 |
 | QA-002A | - | todo | - | - | - | - | - |
 | QA-002B | - | todo | - | - | - | - | - |
 | QA-002C | - | todo | - | - | - | - | - |

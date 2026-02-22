@@ -5,8 +5,11 @@ import { login, signup } from '../auth/http.ts';
 import { createRoom } from '../lobby/http.ts';
 import { evaluateRoomJoin } from '../room/join-policy.ts';
 import { startGameRequest } from '../game/start-policy.ts';
-import { createTurnState, getCurrentTurnPlayerId } from '../game/turn-policy.ts';
+import { createTurnState, getCurrentTurnPlayerId, handleTurnTimeout } from '../game/turn-policy.ts';
 import { createScoreBoard, increaseScoreAndCheckGameEnd } from '../game/score-policy.ts';
+import { handlePlayerLeave } from '../game/elimination-policy.ts';
+import { addMemberToRoster, createRoomRoster } from '../room/host-policy.ts';
+import { executeKickCommand } from '../room/kick-policy.ts';
 
 test('QA-001A: 로그인 -> 로비 -> 방입장 핵심 시나리오', async () => {
   const authState = {
@@ -70,5 +73,33 @@ test('QA-001B: 시작 -> 플레이 -> 10점 종료 핵심 시나리오', () => {
     assert.equal(scoreUpdateResult.nextScore, 10);
     assert.equal(scoreUpdateResult.gameEnded, true);
     assert.equal(scoreUpdateResult.winnerPlayerId, 'host');
+  }
+});
+
+test('QA-001C: 타임아웃/중도이탈/강퇴 핵심 시나리오', () => {
+  const turnState = createTurnState(['host', 'p2', 'p3']);
+
+  const timeoutResult = handleTurnTimeout(turnState);
+  assert.equal(timeoutResult.timedOut, true);
+  assert.equal(timeoutResult.skippedPlayerId, 'host');
+  assert.equal(timeoutResult.nextPlayerId, 'p2');
+
+  const leaveResult = handlePlayerLeave(['p2', 'p3'], 'p3');
+  assert.equal(leaveResult.ok, true);
+  if (leaveResult.ok) {
+    assert.equal(leaveResult.gameEnded, true);
+    assert.equal(leaveResult.winnerPlayerId, 'p2');
+  }
+
+  const roster = createRoomRoster();
+  addMemberToRoster(roster, 'host');
+  addMemberToRoster(roster, 'p2');
+  addMemberToRoster(roster, 'p3');
+
+  const kickResult = executeKickCommand(roster, 'host', 'p2');
+  assert.equal(kickResult.ok, true);
+  if (kickResult.ok) {
+    assert.ok(kickResult.events.some((event) => event.type === 'MEMBER_KICKED'));
+    assert.ok(kickResult.events.some((event) => event.type === 'MEMBER_DISCONNECTED'));
   }
 });
