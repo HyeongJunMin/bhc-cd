@@ -47,3 +47,28 @@ test('턴 종료 시 현재 이벤트 목록 스냅샷을 반환한다', () => {
   assert.equal(snapshot.events.length, 1);
   assert.equal(snapshot.events[0]?.type, 'BALL_COLLISION');
 });
+
+test('턴 경계에서 snapshot 이후 신규 이벤트가 이전 snapshot을 오염시키지 않는다', () => {
+  const tracker = initTurnEventTracker('turn-3');
+
+  appendTurnEvent(tracker, {
+    type: 'BALL_COLLISION',
+    atMs: 10,
+    sourceBallId: 'cue',
+    targetBallId: 'ob1',
+  });
+
+  const firstSnapshot = finalizeTurnEventTracker(tracker);
+
+  appendTurnEvent(tracker, {
+    type: 'CUSHION_COLLISION',
+    atMs: 20,
+    sourceBallId: 'cue',
+    cushionId: 'top',
+  });
+
+  const secondSnapshot = finalizeTurnEventTracker(tracker);
+
+  assert.equal(firstSnapshot.events.length, 1);
+  assert.equal(secondSnapshot.events.length, 2);
+});

@@ -10,9 +10,9 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 21 |
+| Todo | 20 |
 | In Progress | 0 |
-| Done | 80 |
+| Done | 81 |
 | Blocked | 1 |
 | Last Updated | 2026-02-22 10:29 |
 
@@ -21,7 +21,7 @@
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:29 | RULE-002C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:29 | RULE-002D 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -107,7 +107,7 @@
 | RULE-002A | Agent C | done | 2026-02-22 10:25 | `node --experimental-strip-types --test packages/physics-core/src/turn-event-tracker.test.ts` 통과(1 pass) | - | RULE-002B | 턴 시작 이벤트 추적기 초기화 함수 구현 완료 |
 | RULE-002B | Agent C | done | 2026-02-22 10:28 | `node --experimental-strip-types --test packages/physics-core/src/turn-event-tracker.test.ts` 통과(2 pass) | - | RULE-002C | 턴 이벤트 append 로직 구현 완료 |
 | RULE-002C | Agent C | done | 2026-02-22 10:29 | `node --experimental-strip-types --test packages/physics-core/src/turn-event-tracker.test.ts` 통과(3 pass) | - | RULE-002D | 턴 종료 이벤트 스냅샷 반환 구현 완료 |
-| RULE-002D | - | todo | - | - | - | - | - |
+| RULE-002D | Agent C | done | 2026-02-22 10:29 | `node --experimental-strip-types --test packages/physics-core/src/turn-event-tracker.test.ts` 통과(4 pass) | - | RULE-003A | 턴 경계 상태 누수 테스트 완료 |
 | RULE-003A | - | todo | - | - | - | - | - |
 | RULE-003B | - | todo | - | - | - | - | - |
 | RULE-003C | - | todo | - | - | - | - | - |
