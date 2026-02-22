@@ -208,6 +208,15 @@
 - `RULE-010C`: 턴 만료 직전 샷 입력 경합 테스트
 - `RULE-010D`: 상태 전이 원자성 검증(assert) 추가
 
+### Phase J. Web 인증 UI
+
+#### WEB-AUTH-001 로그인/회원가입/게스트 진입 UI
+- `WEB-AUTH-001A`: `/login` 라우트와 인증 페이지 기본 골격 추가
+- `WEB-AUTH-001B`: 로그인/회원가입/게스트 폼 UI 구성
+- `WEB-AUTH-001C`: `http://localhost:9211/auth/*` API 연동
+- `WEB-AUTH-001D`: 인증 성공 시 토큰 저장 + `/lobby` 이동
+- `WEB-AUTH-001E`: 에러코드 매핑 메시지 및 스모크 테스트
+
 ## 4. 추천 착수 순서 (마이크로)
 1. `INF-001A` -> `INF-001C`
 2. `INF-002A` -> `INF-002C`
@@ -219,3 +228,4 @@
 8. `CHAT-001A` -> `CHAT-002C`
 9. `QA-001A` -> `QA-002C`
 10. `RULE-001A` -> `RULE-010D`
+11. `WEB-AUTH-001A` -> `WEB-AUTH-001E`
