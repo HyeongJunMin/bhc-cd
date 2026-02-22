@@ -10,6 +10,7 @@ import { createScoreBoard, increaseScoreAndCheckGameEnd } from '../game/score-po
 import { handlePlayerLeave } from '../game/elimination-policy.ts';
 import { addMemberToRoster, createRoomRoster } from '../room/host-policy.ts';
 import { executeKickCommand } from '../room/kick-policy.ts';
+import { evaluateSpectatorJoin } from '../room/spectator-policy.ts';
 
 test('QA-001A: 로그인 -> 로비 -> 방입장 핵심 시나리오', async () => {
   const authState = {
@@ -101,5 +102,14 @@ test('QA-001C: 타임아웃/중도이탈/강퇴 핵심 시나리오', () => {
   if (kickResult.ok) {
     assert.ok(kickResult.events.some((event) => event.type === 'MEMBER_KICKED'));
     assert.ok(kickResult.events.some((event) => event.type === 'MEMBER_DISCONNECTED'));
+  }
+});
+
+test('RULE-006C: 관전 시도는 서버에서 실패한다', () => {
+  const result = evaluateSpectatorJoin('SPECTATOR');
+
+  assert.equal(result.ok, false);
+  if (!result.ok) {
+    assert.equal(result.errorCode, 'ROOM_SPECTATOR_NOT_ALLOWED');
   }
 });
