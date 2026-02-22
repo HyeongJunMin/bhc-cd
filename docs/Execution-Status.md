@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 10 |
+| Todo | 9 |
 | In Progress | 0 |
-| Done | 91 |
+| Done | 92 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:37 |
+| Last Updated | 2026-02-22 10:38 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:37 | RULE-005D 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:38 | RULE-006A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -118,7 +118,7 @@
 | RULE-005B | Agent C | done | 2026-02-22 10:36 | `node --experimental-strip-types --test packages/physics-core/src/score-adapter.test.ts` 통과(2 pass) | - | RULE-005C | 물리 이벤트 -> 득점 판정 어댑터 구현 완료 |
 | RULE-005C | Agent C | done | 2026-02-22 10:36 | `node --experimental-strip-types --test packages/physics-core/src/turn-resolution.test.ts` 통과(2 pass) | - | RULE-005D | 득점/실패별 턴 전환 정책 구현 완료 |
 | RULE-005D | Agent C | done | 2026-02-22 10:37 | `node --experimental-strip-types --test packages/physics-core/src/score-adapter.integration.test.ts` 통과(2 pass) | - | RULE-006A | 물리 이벤트 mock 기반 통합 테스트 완료 |
-| RULE-006A | - | todo | - | - | - | - | - |
+| RULE-006A | Agent C | done | 2026-02-22 10:38 | `node --experimental-strip-types --test apps/game-server/src/room/spectator-policy.test.ts` 통과(2 pass) | - | RULE-006B | 서버 측 관전자 join 차단 로직 구현 완료 |
 | RULE-006B | - | todo | - | - | - | - | - |
 | RULE-006C | - | todo | - | - | - | - | - |
 | RULE-007A | - | todo | - | - | - | - | - |
