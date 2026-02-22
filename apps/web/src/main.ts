@@ -183,20 +183,37 @@ function renderLoginPage(): string {
   </main>
   <script>
     const message = document.getElementById('auth-message');
+    const ERROR_MESSAGES = {
+      AUTH_INVALID_INPUT: '입력값이 올바르지 않습니다.',
+      AUTH_DUPLICATE_USERNAME: '이미 사용 중인 아이디입니다.',
+      AUTH_INVALID_CREDENTIALS: '아이디 또는 비밀번호가 일치하지 않습니다.',
+      AUTH_INVALID_JSON: '요청 형식이 잘못되었습니다.',
+      AUTH_SERVER_UNAVAILABLE: '인증 서버에 연결할 수 없습니다.',
+      NETWORK_ERROR: '네트워크 오류가 발생했습니다.',
+      UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
+    };
 
     function setMessage(text, type) {
       message.textContent = text;
       message.className = type || '';
     }
 
+    function getErrorMessage(errorCode) {
+      return ERROR_MESSAGES[errorCode] || ERROR_MESSAGES.UNKNOWN_ERROR;
+    }
+
     async function postJson(url, payload) {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json().catch(() => ({}));
-      return { ok: response.ok, status: response.status, data };
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await response.json().catch(() => ({}));
+        return { ok: response.ok, status: response.status, data };
+      } catch {
+        return { ok: false, status: 0, data: { errorCode: 'NETWORK_ERROR' } };
+      }
     }
 
     document.getElementById('signup-form').addEventListener('submit', async (event) => {
@@ -209,7 +226,8 @@ function renderLoginPage(): string {
       setMessage('회원가입 요청 중...', '');
       const result = await postJson('/api/auth/signup', payload);
       if (!result.ok) {
-        setMessage('회원가입 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
+        const errorCode = result.data.errorCode || 'UNKNOWN_ERROR';
+        setMessage('회원가입 실패: ' + getErrorMessage(errorCode), 'error');
         return;
       }
       setMessage('회원가입 성공: ' + result.data.username, 'ok');
@@ -225,7 +243,8 @@ function renderLoginPage(): string {
       setMessage('로그인 요청 중...', '');
       const result = await postJson('/api/auth/login', payload);
       if (!result.ok) {
-        setMessage('로그인 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
+        const errorCode = result.data.errorCode || 'UNKNOWN_ERROR';
+        setMessage('로그인 실패: ' + getErrorMessage(errorCode), 'error');
         return;
       }
       localStorage.setItem('bhc_auth', JSON.stringify({
@@ -248,7 +267,8 @@ function renderLoginPage(): string {
       setMessage('게스트 로그인 요청 중...', '');
       const result = await postJson('/api/auth/guest', payload);
       if (!result.ok) {
-        setMessage('게스트 로그인 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
+        const errorCode = result.data.errorCode || 'UNKNOWN_ERROR';
+        setMessage('게스트 로그인 실패: ' + getErrorMessage(errorCode), 'error');
         return;
       }
       localStorage.setItem('bhc_auth', JSON.stringify({
