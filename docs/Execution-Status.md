@@ -9,17 +9,17 @@
 ## 요약
 | Metric | Value |
 |---|---|
-| Total Tasks | 119 |
+| Total Tasks | 120 |
 | Todo | 0 |
 | In Progress | 0 |
-| Done | 118 |
+| Done | 119 |
 | Blocked | 1 |
-| Last Updated | 2026-02-23 07:55 |
+| Last Updated | 2026-02-23 07:56 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | ROOM-ACTION-001 | done | 2026-02-23 07:55 | 룸 액션(start/kick/rematch) 연동 완료 |
+| Agent A (web) | ROOM-ACTION-002 | done | 2026-02-23 07:56 | 룸 액션 에러/활성조건 정교화 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:54 | INF-002C 재시도(출력 없음, 여전히 blocked) |
 
@@ -145,3 +145,4 @@
 | ROOM-UI-001 | Agent A | done | 2026-02-22 17:59 | `AUTH_PORT=9214 LOBBY_PORT=9215 + WEB_PORT=9217` 임시 실행 후 `curl -X POST /api/lobby/rooms`, `curl -X POST /api/lobby/rooms/room-1/join`, `curl /room/room-1` 확인 | - | ROOM-RT-001 | /room/:id 방 정보/참가자/호스트/액션 패널 데이터 렌더링 및 room detail 프록시 연결 완료 |
 | ROOM-RT-001 | Agent A | done | 2026-02-22 20:17 | `curl -sS http://localhost:9217/lobby \| rg \"setInterval\\(loadRooms, 3000\\)\"`, `curl -sS http://localhost:9217/room/room-1 \| rg \"setInterval\\(loadRoom, 3000\\)\"` 확인 | - | ROOM-ACTION-001 | 로비/룸 페이지 자동 폴링(3초)으로 새로고침 없는 상태 동기화 구현 완료 |
 | ROOM-ACTION-001 | Agent A | done | 2026-02-23 07:55 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`, 분리포트 실행 후 `curl -X POST /api/lobby/rooms/:id/start|kick|rematch`, `curl /room/room-1` 확인 | - | ROOM-ACTION-002 | 룸 start/kick/rematch 서버 액션 및 UI 버튼 연동 완료 |
+| ROOM-ACTION-002 | Agent A | done | 2026-02-23 07:56 | `curl -sS http://localhost:9217/room/room-1 \| rg \"ROOM_ERROR_MESSAGES|getRoomErrorMessage|canStart|canRematch\"` 확인 | - | ROOM-CHAT-001 | 룸 액션 오류 메시지 매핑 및 상태/인원 기반 버튼 활성 조건 정교화 완료 |

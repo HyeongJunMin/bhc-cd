@@ -716,10 +716,24 @@ function renderRoomPage(roomId: string): string {
     const rematchBtn = document.getElementById('rematch-btn');
     const roomMessage = document.getElementById('room-message');
     let myMemberId = null;
+    const ROOM_ERROR_MESSAGES = {
+      ROOM_HOST_ONLY: '방장만 실행할 수 있습니다.',
+      ROOM_MEMBER_NOT_FOUND: '대상을 찾을 수 없습니다.',
+      ROOM_CANNOT_KICK_SELF: '자기 자신은 강퇴할 수 없습니다.',
+      GAME_ALREADY_STARTED: '이미 게임이 시작되었습니다.',
+      GAME_NOT_ENOUGH_PLAYERS: '최소 2명 이상이 필요합니다.',
+      ROOM_NOT_FOUND: '방을 찾을 수 없습니다.',
+      NETWORK_ERROR: '네트워크 오류가 발생했습니다.',
+      UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
+    };
 
     function setRoomMessage(text, type) {
       roomMessage.textContent = text;
       roomMessage.className = type === 'error' ? 'error' : '';
+    }
+
+    function getRoomErrorMessage(errorCode) {
+      return ROOM_ERROR_MESSAGES[errorCode] || ROOM_ERROR_MESSAGES.UNKNOWN_ERROR;
     }
 
     async function requestJson(url, options) {
@@ -739,7 +753,8 @@ function renderRoomPage(roomId: string): string {
         body: JSON.stringify(payload),
       });
       if (!result.ok) {
-        setRoomMessage('요청 실패: ' + (result.data.errorCode || 'UNKNOWN_ERROR'), 'error');
+        const errorCode = result.data.errorCode || 'UNKNOWN_ERROR';
+        setRoomMessage('요청 실패: ' + getRoomErrorMessage(errorCode), 'error');
         return false;
       }
       setRoomMessage(successMessage, '');
@@ -786,14 +801,16 @@ function renderRoomPage(roomId: string): string {
       }
       myMemberId = me?.userId ? String(me.userId) : (me?.guestId || null);
       const isHost = myMemberId && room.hostMemberId && String(room.hostMemberId) === String(myMemberId);
+      const canStart = Boolean(isHost) && room.state === 'WAITING' && room.playerCount >= 2;
+      const canRematch = Boolean(isHost) && room.state !== 'WAITING' && room.playerCount >= 2;
 
       document.getElementById('room-title').textContent = room.title;
       document.getElementById('room-state').textContent = room.state;
       document.getElementById('room-player-count').textContent = String(room.playerCount);
       document.getElementById('room-host').textContent = room.hostMemberId || '-';
       document.getElementById('room-created-at').textContent = room.createdAt;
-      document.getElementById('start-btn').disabled = !isHost;
-      document.getElementById('rematch-btn').disabled = !isHost;
+      document.getElementById('start-btn').disabled = !canStart;
+      document.getElementById('rematch-btn').disabled = !canRematch;
       renderMembers(room, myMemberId, Boolean(isHost));
       setRoomMessage('방 상태를 갱신했습니다.', '');
     }
