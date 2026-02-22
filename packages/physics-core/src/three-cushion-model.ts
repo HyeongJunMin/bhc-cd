@@ -63,3 +63,38 @@ export function hasBothObjectBallContacts(input: ThreeCushionScoreInput): boolea
 
   return input.objectBallIds.every((objectBallId) => contactedObjectBallIds.has(objectBallId));
 }
+
+export function hasAtLeastThreeCushionContacts(input: ThreeCushionScoreInput): boolean {
+  let firstObjectBallId: string | null = null;
+  let secondObjectBallHit = false;
+  let cushionCountBeforeSecondObject = 0;
+
+  for (const event of input.events) {
+    if (event.sourceBallId !== input.cueBallId) {
+      continue;
+    }
+
+    if (event.type === 'CUSHION_COLLISION' && !secondObjectBallHit) {
+      cushionCountBeforeSecondObject += 1;
+      continue;
+    }
+
+    if (event.type === 'BALL_COLLISION') {
+      if (!input.objectBallIds.includes(event.targetBallId as (typeof input.objectBallIds)[number])) {
+        continue;
+      }
+
+      if (firstObjectBallId === null) {
+        firstObjectBallId = event.targetBallId;
+        continue;
+      }
+
+      if (event.targetBallId !== firstObjectBallId) {
+        secondObjectBallHit = true;
+        break;
+      }
+    }
+  }
+
+  return secondObjectBallHit && cushionCountBeforeSecondObject >= 3;
+}

@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 27 |
+| Todo | 26 |
 | In Progress | 0 |
-| Done | 74 |
+| Done | 75 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:21 |
+| Last Updated | 2026-02-22 10:22 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:21 | RULE-001B 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:22 | RULE-001C 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -101,7 +101,7 @@
 | QA-002C | Agent C | done | 2026-02-22 10:20 | `node --experimental-strip-types -e \"process.memoryUsage()\"` 확인 | - | RULE-001A | 메모리 관찰 기준/결과 문서화 완료 |
 | RULE-001A | Agent C | done | 2026-02-22 10:21 | `node --experimental-strip-types --test packages/physics-core/src/three-cushion-model.test.ts` 통과(2 pass) | - | RULE-001B | 턴 득점 판정 입력 모델(충돌 이벤트 리스트) 정의 완료 |
 | RULE-001B | Agent C | done | 2026-02-22 10:21 | `node --experimental-strip-types --test packages/physics-core/src/three-cushion-model.test.ts` 통과(4 pass) | - | RULE-001C | 두 목적구 접촉 판정 구현 완료 |
-| RULE-001C | - | todo | - | - | - | - | - |
+| RULE-001C | Agent C | done | 2026-02-22 10:22 | `node --experimental-strip-types --test packages/physics-core/src/three-cushion-model.test.ts` 통과(6 pass) | - | RULE-001D | 최소 3쿠션 판정 구현 완료 |
 | RULE-001D | - | todo | - | - | - | - | - |
 | RULE-001E | - | todo | - | - | - | - | - |
 | RULE-002A | - | todo | - | - | - | - | - |

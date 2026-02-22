@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { hasBothObjectBallContacts, isTurnCollisionEventList } from './three-cushion-model.ts';
+import { hasAtLeastThreeCushionContacts, hasBothObjectBallContacts, isTurnCollisionEventList } from './three-cushion-model.ts';
 
 test('유효한 충돌 이벤트 리스트를 입력 모델로 인정한다', () => {
   const events = [
@@ -53,6 +53,37 @@ test('목적구 중 하나라도 접촉하지 못하면 false를 반환한다', 
     cueBallId: 'cue',
     objectBallIds: ['ob1', 'ob2'],
     events: [{ type: 'BALL_COLLISION', atMs: 10, sourceBallId: 'cue', targetBallId: 'ob1' }],
+  });
+
+  assert.equal(result, false);
+});
+
+test('두 번째 목적구 접촉 전 3회 이상 쿠션 충돌이면 true를 반환한다', () => {
+  const result = hasAtLeastThreeCushionContacts({
+    cueBallId: 'cue',
+    objectBallIds: ['ob1', 'ob2'],
+    events: [
+      { type: 'BALL_COLLISION', atMs: 10, sourceBallId: 'cue', targetBallId: 'ob1' },
+      { type: 'CUSHION_COLLISION', atMs: 20, sourceBallId: 'cue', cushionId: 'top' },
+      { type: 'CUSHION_COLLISION', atMs: 30, sourceBallId: 'cue', cushionId: 'left' },
+      { type: 'CUSHION_COLLISION', atMs: 40, sourceBallId: 'cue', cushionId: 'bottom' },
+      { type: 'BALL_COLLISION', atMs: 50, sourceBallId: 'cue', targetBallId: 'ob2' },
+    ],
+  });
+
+  assert.equal(result, true);
+});
+
+test('두 번째 목적구 접촉 전 쿠션이 3회 미만이면 false를 반환한다', () => {
+  const result = hasAtLeastThreeCushionContacts({
+    cueBallId: 'cue',
+    objectBallIds: ['ob1', 'ob2'],
+    events: [
+      { type: 'BALL_COLLISION', atMs: 10, sourceBallId: 'cue', targetBallId: 'ob1' },
+      { type: 'CUSHION_COLLISION', atMs: 20, sourceBallId: 'cue', cushionId: 'top' },
+      { type: 'CUSHION_COLLISION', atMs: 30, sourceBallId: 'cue', cushionId: 'left' },
+      { type: 'BALL_COLLISION', atMs: 40, sourceBallId: 'cue', targetBallId: 'ob2' },
+    ],
   });
 
   assert.equal(result, false);
