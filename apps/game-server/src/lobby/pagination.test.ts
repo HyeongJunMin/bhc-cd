@@ -37,3 +37,13 @@ test('같은 offset 중복 요청이면 infinite scroll을 중단한다', () => 
   assert.equal(shouldStopInfiniteScroll(state, 2, true), false);
   assert.equal(shouldStopInfiniteScroll(state, 2, true), true);
 });
+
+test('마지막 페이지 이후 offset 요청은 빈 목록/hasMore=false를 반환한다', () => {
+  const rooms = ['r1', 'r2'];
+
+  const page = paginateRooms(rooms, 10, 5);
+
+  assert.deepEqual(page.items, []);
+  assert.equal(page.hasMore, false);
+  assert.equal(page.nextOffset, 10);
+});
