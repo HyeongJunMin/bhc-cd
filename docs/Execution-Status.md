@@ -9,17 +9,17 @@
 ## 요약
 | Metric | Value |
 |---|---|
-| Total Tasks | 121 |
+| Total Tasks | 122 |
 | Todo | 0 |
 | In Progress | 0 |
-| Done | 120 |
+| Done | 121 |
 | Blocked | 1 |
-| Last Updated | 2026-02-23 08:22 |
+| Last Updated | 2026-02-23 08:24 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | ROOM-CHAT-001 | done | 2026-02-23 08:22 | 룸 채팅 UI/API 연동 완료 |
+| Agent A (web) | GAME-UI-001 | done | 2026-02-23 08:24 | 룸 HUD(턴/타이머/점수판) 표시 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:54 | INF-002C 재시도(출력 없음, 여전히 blocked) |
 
@@ -147,3 +147,4 @@
 | ROOM-ACTION-001 | Agent A | done | 2026-02-23 07:55 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`, 분리포트 실행 후 `curl -X POST /api/lobby/rooms/:id/start|kick|rematch`, `curl /room/room-1` 확인 | - | ROOM-ACTION-002 | 룸 start/kick/rematch 서버 액션 및 UI 버튼 연동 완료 |
 | ROOM-ACTION-002 | Agent A | done | 2026-02-23 07:56 | `curl -sS http://localhost:9217/room/room-1 \| rg \"ROOM_ERROR_MESSAGES|getRoomErrorMessage|canStart|canRematch\"` 확인 | - | ROOM-CHAT-001 | 룸 액션 오류 메시지 매핑 및 상태/인원 기반 버튼 활성 조건 정교화 완료 |
 | ROOM-CHAT-001 | Agent A | done | 2026-02-23 08:22 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`, 분리포트 실행 후 `curl -X POST /api/lobby/rooms/:id/chat`, `curl /api/lobby/rooms/:id/chat`, `curl /room/room-1` 확인 | - | GAME-UI-001 | 룸 채팅 조회/전송 API 및 /room 채팅 패널 연동 완료 |
+| GAME-UI-001 | Agent A | done | 2026-02-23 08:24 | `curl -sS http://localhost:9217/room/room-1 \| rg \"hud-turn|hud-timer|hud-scoreboard|setInterval\\(\\)\"` 확인 | - | PLAY-INPUT-001 | 룸 화면 HUD(현재 턴/10초 타이머/점수판) 기본 표시 구현 완료 |

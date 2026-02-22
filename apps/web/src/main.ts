@@ -708,6 +708,12 @@ function renderRoomPage(roomId: string): string {
       <div id="members" class="members"></div>
     </section>
     <section class="panel" style="margin-top: 14px;">
+      <h2>인게임 HUD</h2>
+      <p>현재 턴: <strong id="hud-turn">-</strong></p>
+      <p>턴 타이머: <strong id="hud-timer">10</strong>초</p>
+      <div id="hud-scoreboard" class="members"></div>
+    </section>
+    <section class="panel" style="margin-top: 14px;">
       <h2>채팅</h2>
       <div id="chat-list" class="members"></div>
       <form id="chat-form" class="create" style="margin-top: 10px;">
@@ -726,7 +732,11 @@ function renderRoomPage(roomId: string): string {
     const chatList = document.getElementById('chat-list');
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
+    const hudTurn = document.getElementById('hud-turn');
+    const hudTimer = document.getElementById('hud-timer');
+    const hudScoreboard = document.getElementById('hud-scoreboard');
     let myMemberId = null;
+    let timerValue = 10;
     const ROOM_ERROR_MESSAGES = {
       ROOM_HOST_ONLY: '방장만 실행할 수 있습니다.',
       ROOM_MEMBER_NOT_FOUND: '대상을 찾을 수 없습니다.',
@@ -783,6 +793,18 @@ function renderRoomPage(roomId: string): string {
         '<div><strong>' + item.senderMemberId + '</strong><div>' + item.message + '</div></div>' +
         '<div>' + (item.sentAt || '') + '</div>' +
         '</article>'
+      )).join('');
+    }
+
+    function renderHud(room) {
+      const members = Array.isArray(room.members) ? room.members : [];
+      hudTurn.textContent = members.length > 0 ? members[0].displayName : '-';
+      if (members.length === 0) {
+        hudScoreboard.innerHTML = '<p>점수판 데이터가 없습니다.</p>';
+        return;
+      }
+      hudScoreboard.innerHTML = members.map((member) => (
+        '<article class="member"><div><strong>' + member.displayName + '</strong></div><div>0점</div></article>'
       )).join('');
     }
 
@@ -845,6 +867,7 @@ function renderRoomPage(roomId: string): string {
       document.getElementById('start-btn').disabled = !canStart;
       document.getElementById('rematch-btn').disabled = !canRematch;
       renderMembers(room, myMemberId, Boolean(isHost));
+      renderHud(room);
       setRoomMessage('방 상태를 갱신했습니다.', '');
     }
 
@@ -933,6 +956,10 @@ function renderRoomPage(roomId: string): string {
     loadChat();
     setInterval(loadRoom, 3000);
     setInterval(loadChat, 3000);
+    setInterval(() => {
+      timerValue = timerValue <= 0 ? 10 : timerValue - 1;
+      hudTimer.textContent = String(timerValue);
+    }, 1000);
   </script>
 </body>
 </html>`;
