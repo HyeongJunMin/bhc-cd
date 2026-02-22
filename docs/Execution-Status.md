@@ -10,9 +10,9 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 4 |
+| Todo | 3 |
 | In Progress | 0 |
-| Done | 97 |
+| Done | 98 |
 | Blocked | 1 |
 | Last Updated | 2026-02-22 10:42 |
 
@@ -21,7 +21,7 @@
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:42 | RULE-007C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:42 | RULE-008A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -124,7 +124,7 @@
 | RULE-007A | Agent C | done | 2026-02-22 10:40 | `node --experimental-strip-types --test apps/game-server/src/lobby/pagination.test.ts` 통과(2 pass) | - | RULE-007B | 로비 조회 hasMore 계약 추가 완료 |
 | RULE-007B | Agent C | done | 2026-02-22 10:41 | `node --experimental-strip-types --test apps/game-server/src/lobby/pagination.test.ts` 통과(4 pass) | - | RULE-007C | infinite scroll 중단 조건 적용 완료 |
 | RULE-007C | Agent C | done | 2026-02-22 10:42 | `node --experimental-strip-types --test apps/game-server/src/lobby/pagination.test.ts` 통과(5 pass) | - | RULE-008A | 마지막 페이지/중복요청 경계 테스트 완료 |
-| RULE-008A | - | todo | - | - | - | - | - |
+| RULE-008A | Agent C | done | 2026-02-22 10:42 | `node --experimental-strip-types --test packages/shared-types/src/error-codes.test.ts` 통과(1 pass) | - | RULE-008B | 공통 에러 코드 enum 정의 완료 |
 | RULE-008B | - | todo | - | - | - | - | - |
 | RULE-008C | - | todo | - | - | - | - | - |
 | RULE-009A | - | todo | - | - | - | - | - |
