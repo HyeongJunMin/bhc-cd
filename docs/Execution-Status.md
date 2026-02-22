@@ -9,19 +9,19 @@
 ## 요약
 | Metric | Value |
 |---|---|
-| Total Tasks | 102 |
-| Todo | 1 |
+| Total Tasks | 108 |
+| Todo | 6 |
 | In Progress | 0 |
-| Done | 100 |
+| Done | 101 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:44 |
+| Last Updated | 2026-02-22 10:45 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:44 | RULE-008C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:45 | RULE-009A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -127,7 +127,7 @@
 | RULE-008A | Agent C | done | 2026-02-22 10:42 | `node --experimental-strip-types --test packages/shared-types/src/error-codes.test.ts` 통과(1 pass) | - | RULE-008B | 공통 에러 코드 enum 정의 완료 |
 | RULE-008B | Agent C | done | 2026-02-22 10:43 | `cat docs/Error-Codes.md` 확인 | - | RULE-008C | 공통 에러 코드 문서 작성 완료 |
 | RULE-008C | Agent C | done | 2026-02-22 10:44 | `cat docs/Error-Codes.md` 확인 | - | RULE-009A | 기존 API 응답 코드 매핑 정리 완료 |
-| RULE-009A | - | todo | - | - | - | - | - |
+| RULE-009A | Agent C | done | 2026-02-22 10:45 | `node --experimental-strip-types --test apps/game-server/src/game/rematch-policy.test.ts` 통과(6 pass) | - | RULE-009B | 재경기 직후 점수/턴 검증 케이스 추가 완료 |
 | RULE-009B | - | todo | - | - | - | - | - |
 | RULE-009C | - | todo | - | - | - | - | - |
 | RULE-010A | - | todo | - | - | - | - | - |
