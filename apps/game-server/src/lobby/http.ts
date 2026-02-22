@@ -18,6 +18,11 @@ type LobbyRoom = {
     displayName: string;
     joinedAt: string;
   }>;
+  chatMessages: Array<{
+    senderMemberId: string;
+    message: string;
+    sentAt: string;
+  }>;
 };
 
 type LobbyState = {
@@ -47,6 +52,9 @@ type RoomActionResult =
         | 'GAME_ALREADY_STARTED'
         | 'GAME_NOT_ENOUGH_PLAYERS';
     };
+type RoomChatResult =
+  | { ok: true; room: LobbyRoom }
+  | { ok: false; statusCode: 400 | 404; errorCode: 'ROOM_NOT_FOUND' | 'ROOM_MEMBER_NOT_FOUND' | 'CHAT_INVALID_INPUT' };
 
 type ListRoomsResult = {
   items: LobbyRoom[];
@@ -96,6 +104,7 @@ export function createRoom(state: LobbyState, input: { title: unknown }): Create
     createdAt: new Date().toISOString(),
     hostMemberId: null,
     members: [],
+    chatMessages: [],
   };
 
   state.nextRoomId += 1;
@@ -277,6 +286,38 @@ export function kickRoomMember(
   return { ok: true, room };
 }
 
+export function sendRoomChatMessage(
+  state: LobbyState,
+  roomId: string,
+  senderMemberId: string,
+  message: string,
+): RoomChatResult {
+  const room = state.rooms.find((item) => item.roomId === roomId);
+  if (!room) {
+    return { ok: false, statusCode: 404, errorCode: 'ROOM_NOT_FOUND' };
+  }
+
+  const senderExists = room.members.some((member) => member.memberId === senderMemberId);
+  if (!senderExists) {
+    return { ok: false, statusCode: 404, errorCode: 'ROOM_MEMBER_NOT_FOUND' };
+  }
+
+  const normalizedMessage = message.trim();
+  if (normalizedMessage.length === 0) {
+    return { ok: false, statusCode: 400, errorCode: 'CHAT_INVALID_INPUT' };
+  }
+
+  room.chatMessages.push({
+    senderMemberId,
+    message: normalizedMessage,
+    sentAt: new Date().toISOString(),
+  });
+  if (room.chatMessages.length > 50) {
+    room.chatMessages = room.chatMessages.slice(-50);
+  }
+  return { ok: true, room };
+}
+
 async function handleStartRoom(req: IncomingMessage, res: ServerResponse, state: LobbyState): Promise<void> {
   const match = req.url?.match(/^\/lobby\/rooms\/([^/]+)\/start$/);
   const roomId = match?.[1];
@@ -344,6 +385,46 @@ async function handleKickRoomMember(req: IncomingMessage, res: ServerResponse, s
   writeJson(res, 200, { room: result.room });
 }
 
+function handleGetRoomChat(req: IncomingMessage, res: ServerResponse, state: LobbyState): void {
+  const match = req.url?.match(/^\/lobby\/rooms\/([^/]+)\/chat$/);
+  const roomId = match?.[1];
+  if (!roomId) {
+    writeJson(res, 404, { errorCode: 'ROOM_NOT_FOUND' });
+    return;
+  }
+
+  const room = state.rooms.find((item) => item.roomId === roomId);
+  if (!room) {
+    writeJson(res, 404, { errorCode: 'ROOM_NOT_FOUND' });
+    return;
+  }
+
+  writeJson(res, 200, { items: room.chatMessages });
+}
+
+async function handleSendRoomChat(req: IncomingMessage, res: ServerResponse, state: LobbyState): Promise<void> {
+  const match = req.url?.match(/^\/lobby\/rooms\/([^/]+)\/chat$/);
+  const roomId = match?.[1];
+  if (!roomId) {
+    writeJson(res, 404, { errorCode: 'ROOM_NOT_FOUND' });
+    return;
+  }
+
+  const body = await parseJsonBody(req, res);
+  if (!body) {
+    return;
+  }
+
+  const senderMemberId = typeof body.senderMemberId === 'string' ? body.senderMemberId : '';
+  const message = typeof body.message === 'string' ? body.message : '';
+  const result = sendRoomChatMessage(state, roomId, senderMemberId, message);
+  if (!result.ok) {
+    writeJson(res, result.statusCode, { errorCode: result.errorCode });
+    return;
+  }
+  writeJson(res, 201, { item: result.room.chatMessages[result.room.chatMessages.length - 1] });
+}
+
 export function getRoomDetail(state: LobbyState, roomId: string): RoomDetailResult {
   const room = state.rooms.find((item) => item.roomId === roomId);
   if (!room) {
@@ -377,6 +458,11 @@ export function createLobbyHttpServer() {
   };
 
   const server = createServer(async (req, res) => {
+    if (req.method === 'GET' && req.url?.startsWith('/lobby/rooms/') && req.url.endsWith('/chat')) {
+      handleGetRoomChat(req, res, state);
+      return;
+    }
+
     if (req.method === 'GET' && req.url?.startsWith('/lobby/rooms/')) {
       handleGetRoomDetail(req, res, state);
       return;
@@ -409,6 +495,11 @@ export function createLobbyHttpServer() {
 
     if (req.method === 'POST' && req.url?.startsWith('/lobby/rooms/') && req.url.endsWith('/kick')) {
       await handleKickRoomMember(req, res, state);
+      return;
+    }
+
+    if (req.method === 'POST' && req.url?.startsWith('/lobby/rooms/') && req.url.endsWith('/chat')) {
+      await handleSendRoomChat(req, res, state);
       return;
     }
 

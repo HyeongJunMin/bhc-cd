@@ -707,6 +707,14 @@ function renderRoomPage(roomId: string): string {
       <h2>참가자 목록</h2>
       <div id="members" class="members"></div>
     </section>
+    <section class="panel" style="margin-top: 14px;">
+      <h2>채팅</h2>
+      <div id="chat-list" class="members"></div>
+      <form id="chat-form" class="create" style="margin-top: 10px;">
+        <input id="chat-input" maxlength="120" placeholder="메시지를 입력하세요" required>
+        <button type="submit">전송</button>
+      </form>
+    </section>
   </main>
   <script>
     const sessionRaw = localStorage.getItem('bhc_auth');
@@ -715,6 +723,9 @@ function renderRoomPage(roomId: string): string {
     const startBtn = document.getElementById('start-btn');
     const rematchBtn = document.getElementById('rematch-btn');
     const roomMessage = document.getElementById('room-message');
+    const chatList = document.getElementById('chat-list');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
     let myMemberId = null;
     const ROOM_ERROR_MESSAGES = {
       ROOM_HOST_ONLY: '방장만 실행할 수 있습니다.',
@@ -722,6 +733,7 @@ function renderRoomPage(roomId: string): string {
       ROOM_CANNOT_KICK_SELF: '자기 자신은 강퇴할 수 없습니다.',
       GAME_ALREADY_STARTED: '이미 게임이 시작되었습니다.',
       GAME_NOT_ENOUGH_PLAYERS: '최소 2명 이상이 필요합니다.',
+      CHAT_INVALID_INPUT: '채팅 메시지를 입력해 주세요.',
       ROOM_NOT_FOUND: '방을 찾을 수 없습니다.',
       NETWORK_ERROR: '네트워크 오류가 발생했습니다.',
       UNKNOWN_ERROR: '알 수 없는 오류가 발생했습니다.',
@@ -759,6 +771,27 @@ function renderRoomPage(roomId: string): string {
       }
       setRoomMessage(successMessage, '');
       return true;
+    }
+
+    function renderChat(items) {
+      if (!Array.isArray(items) || items.length === 0) {
+        chatList.innerHTML = '<p>채팅 메시지가 없습니다.</p>';
+        return;
+      }
+      chatList.innerHTML = items.map((item) => (
+        '<article class="member">' +
+        '<div><strong>' + item.senderMemberId + '</strong><div>' + item.message + '</div></div>' +
+        '<div>' + (item.sentAt || '') + '</div>' +
+        '</article>'
+      )).join('');
+    }
+
+    async function loadChat() {
+      const result = await requestJson('/api/lobby/rooms/${roomId}/chat', { method: 'GET' });
+      if (!result.ok) {
+        return;
+      }
+      renderChat(result.data.items);
     }
 
     function renderMembers(room, meId, isHost) {
@@ -875,8 +908,31 @@ function renderRoomPage(roomId: string): string {
       window.location.href = '/lobby';
     });
 
+    chatForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!myMemberId) {
+        setRoomMessage('세션 정보가 없습니다. 다시 로그인해 주세요.', 'error');
+        return;
+      }
+      const message = chatInput.value;
+      const result = await requestJson('/api/lobby/rooms/${roomId}/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ senderMemberId: myMemberId, message }),
+      });
+      if (!result.ok) {
+        const errorCode = result.data.errorCode || 'UNKNOWN_ERROR';
+        setRoomMessage('채팅 전송 실패: ' + getRoomErrorMessage(errorCode), 'error');
+        return;
+      }
+      chatInput.value = '';
+      await loadChat();
+    });
+
     loadRoom();
+    loadChat();
     setInterval(loadRoom, 3000);
+    setInterval(loadChat, 3000);
   </script>
 </body>
 </html>`;
@@ -934,6 +990,16 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === 'POST' && req.url?.startsWith('/api/lobby/rooms/') && req.url.endsWith('/kick')) {
+    await proxyJsonRequest(req, res, `${lobbyServerUrl}${req.url.replace('/api', '')}`, 'POST', 'LOBBY_SERVER_UNAVAILABLE');
+    return;
+  }
+
+  if (req.method === 'GET' && req.url?.startsWith('/api/lobby/rooms/') && req.url.endsWith('/chat')) {
+    await proxyJsonRequest(req, res, `${lobbyServerUrl}${req.url.replace('/api', '')}`, 'GET', 'LOBBY_SERVER_UNAVAILABLE');
+    return;
+  }
+
+  if (req.method === 'POST' && req.url?.startsWith('/api/lobby/rooms/') && req.url.endsWith('/chat')) {
     await proxyJsonRequest(req, res, `${lobbyServerUrl}${req.url.replace('/api', '')}`, 'POST', 'LOBBY_SERVER_UNAVAILABLE');
     return;
   }

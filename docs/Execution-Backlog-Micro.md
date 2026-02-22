@@ -242,6 +242,9 @@
 #### ROOM-ACTION-002 액션 에러/활성조건 정교화
 - `ROOM-ACTION-002`: 룸 액션 에러코드 사용자 메시지 매핑 및 상태/인원 기반 버튼 활성조건 정교화
 
+#### ROOM-CHAT-001 룸 채팅 UI/API 연결
+- `ROOM-CHAT-001`: `/room/:id` 채팅 목록/전송 UI와 룸 채팅 API를 연동
+
 ## 4. 추천 착수 순서 (마이크로)
 1. `INF-001A` -> `INF-001C`
 2. `INF-002A` -> `INF-002C`
@@ -261,3 +264,4 @@
 16. `ROOM-RT-001`
 17. `ROOM-ACTION-001`
 18. `ROOM-ACTION-002`
+19. `ROOM-CHAT-001`

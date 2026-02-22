@@ -9,6 +9,7 @@ import {
   kickRoomMember,
   listRooms,
   rematchRoomGame,
+  sendRoomChatMessage,
   startRoomGame,
 } from './http.ts';
 
@@ -155,5 +156,22 @@ test('재경기: 방장이고 2인 이상이면 IN_GAME으로 전환된다', () 
   assert.equal(rematch.ok, true);
   if (rematch.ok) {
     assert.equal(rematch.room.state, 'IN_GAME');
+  }
+});
+
+test('채팅 전송: 룸 멤버면 메시지가 저장된다', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'chat-room' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  const sent = sendRoomChatMessage(state, created.room.roomId, 'u1', 'hello');
+  assert.equal(sent.ok, true);
+  if (sent.ok) {
+    assert.equal(sent.room.chatMessages.length, 1);
+    assert.equal(sent.room.chatMessages[0].message, 'hello');
   }
 });
