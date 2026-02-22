@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { appendTurnEvent, finalizeTurnEventTracker, initTurnEventTracker } from './turn-event-tracker.ts';
+import { appendTurnEvent, finalizeTurnEventTracker, initTurnEventTracker, resetTurnEventHistory } from './turn-event-tracker.ts';
 
 test('턴 시작 시 이벤트 추적기를 빈 상태로 초기화한다', () => {
   const tracker = initTurnEventTracker('turn-1');
@@ -71,4 +71,20 @@ test('턴 경계에서 snapshot 이후 신규 이벤트가 이전 snapshot을 �
 
   assert.equal(firstSnapshot.events.length, 1);
   assert.equal(secondSnapshot.events.length, 2);
+});
+
+test('재경기 시 이전 턴 이벤트 이력을 초기화한다', () => {
+  const tracker = initTurnEventTracker('turn-1');
+
+  appendTurnEvent(tracker, {
+    type: 'BALL_COLLISION',
+    atMs: 10,
+    sourceBallId: 'cue',
+    targetBallId: 'ob1',
+  });
+
+  const resetTracker = resetTurnEventHistory(tracker, 'turn-rematch-1');
+
+  assert.equal(resetTracker.turnId, 'turn-rematch-1');
+  assert.deepEqual(resetTracker.events, []);
 });

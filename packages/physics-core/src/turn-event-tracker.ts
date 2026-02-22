@@ -28,3 +28,9 @@ export function finalizeTurnEventTracker(tracker: TurnEventTracker): TurnEventSn
     events: [...tracker.events],
   };
 }
+
+export function resetTurnEventHistory(tracker: TurnEventTracker, nextTurnId: string): TurnEventTracker {
+  tracker.turnId = nextTurnId;
+  tracker.events = [];
+  return tracker;
+}
