@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 16 |
+| Todo | 15 |
 | In Progress | 0 |
-| Done | 85 |
+| Done | 86 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:32 |
+| Last Updated | 2026-02-22 10:33 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:32 | RULE-004A 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:33 | RULE-004B 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -112,7 +112,7 @@
 | RULE-003B | Agent C | done | 2026-02-22 10:31 | `node --experimental-strip-types --test packages/physics-core/src/shot-end.test.ts` 통과(5 pass) | - | RULE-003C | N프레임 연속 정지 판정 로직 구현 완료 |
 | RULE-003C | Agent C | done | 2026-02-22 10:32 | `node --experimental-strip-types --test packages/physics-core/src/shot-end.test.ts` 통과(7 pass) | - | RULE-004A | 조기 종료/무한 턴 방지 테스트 완료 |
 | RULE-004A | Agent C | done | 2026-02-22 10:32 | `node --experimental-strip-types --test packages/physics-core/src/rack-layout.test.ts` 통과(2 pass) | - | RULE-004B | 시작 배치 좌표 상수 정의 완료 |
-| RULE-004B | - | todo | - | - | - | - | - |
+| RULE-004B | Agent C | done | 2026-02-22 10:33 | `node --experimental-strip-types --test packages/physics-core/src/rack-layout.test.ts` 통과(3 pass) | - | RULE-004C | 시작 배치 적용 함수 구현 완료 |
 | RULE-004C | - | todo | - | - | - | - | - |
 | RULE-005A | - | todo | - | - | - | - | - |
 | RULE-005B | - | todo | - | - | - | - | - |
