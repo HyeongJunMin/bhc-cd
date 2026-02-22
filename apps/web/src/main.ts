@@ -549,6 +549,7 @@ function renderLobbyPage(): string {
     });
 
     loadRooms();
+    setInterval(loadRooms, 3000);
   </script>
 </body>
 </html>`;
@@ -780,6 +781,7 @@ function renderRoomPage(roomId: string): string {
     });
 
     loadRoom();
+    setInterval(loadRoom, 3000);
   </script>
 </body>
 </html>`;
