@@ -254,6 +254,9 @@
 #### PLAY-INPUT-002 샷 검증 실패 피드백 고도화
 - `PLAY-INPUT-002`: 샷 제출 실패 시 errorCode와 validation errors[]를 상세 표시
 
+#### PLAY-FLOW-001 경기 상태 전환 UX
+- `PLAY-FLOW-001`: 룸 상태(IN_GAME/FINISHED/대기) 배너와 강퇴/퇴장 시 자동 로비 복귀 흐름 추가
+
 ## 4. 추천 착수 순서 (마이크로)
 1. `INF-001A` -> `INF-001C`
 2. `INF-002A` -> `INF-002C`
@@ -277,3 +280,4 @@
 20. `GAME-UI-001`
 21. `PLAY-INPUT-001`
 22. `PLAY-INPUT-002`
+23. `PLAY-FLOW-001`

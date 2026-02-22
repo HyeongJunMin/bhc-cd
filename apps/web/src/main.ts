@@ -678,6 +678,7 @@ function renderRoomPage(roomId: string): string {
       <div>
         <h1>게임방</h1>
         <p>방 ID: <strong id="room-id">${roomId}</strong></p>
+        <p id="flow-banner"></p>
       </div>
       <div class="actions">
         <button id="refresh-room-btn" class="secondary" type="button">새로고침</button>
@@ -740,6 +741,7 @@ function renderRoomPage(roomId: string): string {
     const startBtn = document.getElementById('start-btn');
     const rematchBtn = document.getElementById('rematch-btn');
     const roomMessage = document.getElementById('room-message');
+    const flowBanner = document.getElementById('flow-banner');
     const chatList = document.getElementById('chat-list');
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
@@ -770,6 +772,12 @@ function renderRoomPage(roomId: string): string {
     function setRoomMessage(text, type) {
       roomMessage.textContent = text;
       roomMessage.className = type === 'error' ? 'error' : '';
+    }
+
+    function setFlowBanner(text, tone) {
+      flowBanner.textContent = text;
+      flowBanner.style.color = tone === 'warn' ? '#b91c1c' : '#334155';
+      flowBanner.style.fontWeight = '700';
     }
 
     function setShotMessage(text, type) {
@@ -884,6 +892,7 @@ function renderRoomPage(roomId: string): string {
       const isHost = myMemberId && room.hostMemberId && String(room.hostMemberId) === String(myMemberId);
       const canStart = Boolean(isHost) && room.state === 'WAITING' && room.playerCount >= 2;
       const canRematch = Boolean(isHost) && room.state !== 'WAITING' && room.playerCount >= 2;
+      const amIMember = room.members.some((member) => String(member.memberId) === String(myMemberId));
 
       document.getElementById('room-title').textContent = room.title;
       document.getElementById('room-state').textContent = room.state;
@@ -894,6 +903,25 @@ function renderRoomPage(roomId: string): string {
       document.getElementById('rematch-btn').disabled = !canRematch;
       renderMembers(room, myMemberId, Boolean(isHost));
       renderHud(room);
+
+      if (!amIMember && myMemberId) {
+        setFlowBanner('방에서 제외되었습니다. 로비로 이동합니다.', 'warn');
+        setTimeout(() => {
+          window.location.href = '/lobby';
+        }, 1200);
+        return;
+      }
+
+      if (room.state === 'IN_GAME') {
+        setFlowBanner('경기 진행 중입니다.', '');
+      } else if (room.state === 'FINISHED') {
+        setFlowBanner('경기가 종료되었습니다.', 'warn');
+      } else if (room.playerCount <= 1) {
+        setFlowBanner('대기 중: 2명 이상 입장하면 시작할 수 있습니다.', '');
+      } else {
+        setFlowBanner('게임 시작 가능 상태입니다.', '');
+      }
+
       setRoomMessage('방 상태를 갱신했습니다.', '');
     }
 
