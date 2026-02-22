@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 24 |
+| Todo | 23 |
 | In Progress | 0 |
-| Done | 77 |
+| Done | 78 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:24 |
+| Last Updated | 2026-02-22 10:25 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:24 | RULE-001E 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:25 | RULE-002A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -104,7 +104,7 @@
 | RULE-001C | Agent C | done | 2026-02-22 10:22 | `node --experimental-strip-types --test packages/physics-core/src/three-cushion-model.test.ts` 통과(6 pass) | - | RULE-001D | 최소 3쿠션 판정 구현 완료 |
 | RULE-001D | Agent C | done | 2026-02-22 10:23 | `node --experimental-strip-types --test packages/physics-core/src/three-cushion-model.test.ts` 통과(8 pass) | - | RULE-001E | 3쿠션 득점 종합 판정 함수 구현 완료 |
 | RULE-001E | Agent C | done | 2026-02-22 10:24 | `node --experimental-strip-types --test packages/physics-core/src/three-cushion-model.test.ts` 통과(11 pass) | - | RULE-002A | 3쿠션 판정 참/거짓/경계 테스트 세트 완료 |
-| RULE-002A | - | todo | - | - | - | - | - |
+| RULE-002A | Agent C | done | 2026-02-22 10:25 | `node --experimental-strip-types --test packages/physics-core/src/turn-event-tracker.test.ts` 통과(1 pass) | - | RULE-002B | 턴 시작 이벤트 추적기 초기화 함수 구현 완료 |
 | RULE-002B | - | todo | - | - | - | - | - |
 | RULE-002C | - | todo | - | - | - | - | - |
 | RULE-002D | - | todo | - | - | - | - | - |
