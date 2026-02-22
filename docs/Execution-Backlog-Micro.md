@@ -251,6 +251,9 @@
 #### PLAY-INPUT-001 샷 입력 UI/검증 연결
 - `PLAY-INPUT-001`: `/room/:id` 샷 입력 폼과 서버 샷 스키마 검증 API를 연동
 
+#### PLAY-INPUT-002 샷 검증 실패 피드백 고도화
+- `PLAY-INPUT-002`: 샷 제출 실패 시 errorCode와 validation errors[]를 상세 표시
+
 ## 4. 추천 착수 순서 (마이크로)
 1. `INF-001A` -> `INF-001C`
 2. `INF-002A` -> `INF-002C`
@@ -273,3 +276,4 @@
 19. `ROOM-CHAT-001`
 20. `GAME-UI-001`
 21. `PLAY-INPUT-001`
+22. `PLAY-INPUT-002`

@@ -722,6 +722,7 @@ function renderRoomPage(roomId: string): string {
         <button type="submit">샷 제출</button>
       </form>
       <p id="shot-message"></p>
+      <pre id="shot-errors" style="white-space: pre-wrap;"></pre>
     </section>
     <section class="panel" style="margin-top: 14px;">
       <h2>채팅</h2>
@@ -750,6 +751,7 @@ function renderRoomPage(roomId: string): string {
     const shotElevation = document.getElementById('shot-elevation');
     const shotDrag = document.getElementById('shot-drag');
     const shotMessage = document.getElementById('shot-message');
+    const shotErrors = document.getElementById('shot-errors');
     let myMemberId = null;
     let timerValue = 10;
     const ROOM_ERROR_MESSAGES = {
@@ -773,6 +775,9 @@ function renderRoomPage(roomId: string): string {
     function setShotMessage(text, type) {
       shotMessage.textContent = text;
       shotMessage.style.color = type === 'error' ? '#b91c1c' : '#334155';
+      if (type !== 'error') {
+        shotErrors.textContent = '';
+      }
     }
 
     function getRoomErrorMessage(errorCode) {
@@ -981,6 +986,8 @@ function renderRoomPage(roomId: string): string {
       if (!result.ok) {
         const errorCode = result.data.errorCode || 'UNKNOWN_ERROR';
         setShotMessage('샷 제출 실패: ' + getRoomErrorMessage(errorCode), 'error');
+        const details = Array.isArray(result.data.errors) ? result.data.errors : [];
+        shotErrors.textContent = details.length > 0 ? details.join('\n') : '';
         return;
       }
       setShotMessage('샷 입력이 서버에 접수되었습니다.', '');
