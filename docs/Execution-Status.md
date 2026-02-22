@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 31 |
+| Todo | 30 |
 | In Progress | 0 |
-| Done | 70 |
+| Done | 71 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:18 |
+| Last Updated | 2026-02-22 10:19 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:18 | QA-002A 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:19 | QA-002B 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -97,7 +97,7 @@
 | QA-001B | Agent C | done | 2026-02-22 10:17 | `node --experimental-strip-types --test apps/game-server/src/qa/core-scenarios.test.ts` 통과(2 pass) | - | QA-001C | 시작->플레이->10점 종료 핵심 시나리오 작성 완료 |
 | QA-001C | Agent C | done | 2026-02-22 10:17 | `node --experimental-strip-types --test apps/game-server/src/qa/core-scenarios.test.ts` 통과(3 pass) | - | QA-002A | 타임아웃/중도이탈/강퇴 핵심 시나리오 작성 완료 |
 | QA-002A | Agent C | done | 2026-02-22 10:18 | `node --experimental-strip-types scripts/qa/smoke-six-connections.ts` 통과 | - | QA-002B | 6인 동시 접속 스모크 스크립트 준비 완료 |
-| QA-002B | - | todo | - | - | - | - | - |
+| QA-002B | Agent C | done | 2026-02-22 10:19 | `QA_DURATION_MS=2000 QA_TICK_MS=500 node --experimental-strip-types scripts/qa/collect-play-errors.ts` 통과(errorCount=0) | - | QA-002C | 10분 플레이 에러 로그 수집 스크립트 준비 완료 |
 | QA-002C | - | todo | - | - | - | - | - |
 | RULE-001A | - | todo | - | - | - | - | - |
 | RULE-001B | - | todo | - | - | - | - | - |
