@@ -10,18 +10,18 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 102 |
-| Todo | 7 |
+| Todo | 6 |
 | In Progress | 0 |
-| Done | 94 |
+| Done | 95 |
 | Blocked | 1 |
-| Last Updated | 2026-02-22 10:39 |
+| Last Updated | 2026-02-22 10:40 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
 | Agent A (web) | - | idle | - | - |
 | Agent B (game-server) | - | idle | - | - |
-| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:39 | RULE-006C 완료 |
+| Agent C (shared/physics/docs) | - | idle | 2026-02-22 10:40 | RULE-007A 완료 |
 
 ## 작업 보드
 | Task ID | Agent | Status | Updated At | Validation | PR/Commit | Next Task | Note |
@@ -121,7 +121,7 @@
 | RULE-006A | Agent C | done | 2026-02-22 10:38 | `node --experimental-strip-types --test apps/game-server/src/room/spectator-policy.test.ts` 통과(2 pass) | - | RULE-006B | 서버 측 관전자 join 차단 로직 구현 완료 |
 | RULE-006B | Agent C | done | 2026-02-22 10:39 | `node --experimental-strip-types --test apps/game-server/src/room/spectator-policy.test.ts` 통과(3 pass) | - | RULE-006C | 관전자 차단 에러 문구 매핑 정리 완료 |
 | RULE-006C | Agent C | done | 2026-02-22 10:39 | `node --experimental-strip-types --test apps/game-server/src/qa/core-scenarios.test.ts` 통과(4 pass) | - | RULE-007A | 관전 시도 실패 E2E 케이스 추가 완료 |
-| RULE-007A | - | todo | - | - | - | - | - |
+| RULE-007A | Agent C | done | 2026-02-22 10:40 | `node --experimental-strip-types --test apps/game-server/src/lobby/pagination.test.ts` 통과(2 pass) | - | RULE-007B | 로비 조회 hasMore 계약 추가 완료 |
 | RULE-007B | - | todo | - | - | - | - | - |
 | RULE-007C | - | todo | - | - | - | - | - |
 | RULE-008A | - | todo | - | - | - | - | - |
