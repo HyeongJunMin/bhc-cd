@@ -842,6 +842,9 @@ function renderRoomPage(roomId: string): string {
       context: null,
       image: null,
       imageLoaded: false,
+      animationFrameId: 0,
+      lastSnapshotSeq: 0,
+      snapshotBuffer: [],
       viewport: {
         offsetX: 0,
         offsetY: 0,
@@ -954,6 +957,88 @@ function renderRoomPage(roomId: string): string {
       );
     }
 
+    function interpolateSnapshots(previous, next, alpha) {
+      const nextById = new Map(next.balls.map((ball) => [ball.id, ball]));
+      return previous.balls.map((ball) => {
+        const matched = nextById.get(ball.id) || ball;
+        return {
+          id: ball.id,
+          x: ball.x + (matched.x - ball.x) * alpha,
+          y: ball.y + (matched.y - ball.y) * alpha,
+          radiusM: ball.radiusM,
+          color: ball.color,
+        };
+      });
+    }
+
+    function drawBalls(balls) {
+      const context = stageState.context;
+      if (!context) {
+        return;
+      }
+      const pixelsPerMeter = stageState.viewport.width / TABLE_WORLD_WIDTH_M;
+      for (const ball of balls) {
+        const center = worldToCanvas({ x: ball.x, y: ball.y });
+        const radiusPx = Math.max(2, ball.radiusM * pixelsPerMeter);
+        context.beginPath();
+        context.arc(center.x, center.y, radiusPx, 0, Math.PI * 2);
+        context.fillStyle = ball.color;
+        context.fill();
+        context.lineWidth = 1.5;
+        context.strokeStyle = '#0f172a';
+        context.stroke();
+      }
+    }
+
+    function createDefaultStageSnapshot(seq, timestampMs) {
+      return {
+        seq,
+        serverTimeMs: timestampMs,
+        balls: [
+          { id: 'cueBall', x: 0.70, y: 0.71, radiusM: 0.03075, color: '#f8fafc' },
+          { id: 'objectBall1', x: 2.10, y: 0.62, radiusM: 0.03075, color: '#facc15' },
+          { id: 'objectBall2', x: 2.24, y: 0.80, radiusM: 0.03075, color: '#ef4444' },
+        ],
+      };
+    }
+
+    function pushStageSnapshot(snapshot) {
+      if (!snapshot || !Array.isArray(snapshot.balls)) {
+        return;
+      }
+      if (typeof snapshot.seq === 'number' && snapshot.seq <= stageState.lastSnapshotSeq) {
+        return;
+      }
+      stageState.lastSnapshotSeq = typeof snapshot.seq === 'number' ? snapshot.seq : stageState.lastSnapshotSeq + 1;
+      stageState.snapshotBuffer.push(snapshot);
+      if (stageState.snapshotBuffer.length > 6) {
+        stageState.snapshotBuffer.shift();
+      }
+    }
+
+    function renderInterpolatedBalls() {
+      if (stageState.snapshotBuffer.length === 0) {
+        return;
+      }
+      if (stageState.snapshotBuffer.length === 1) {
+        drawBalls(stageState.snapshotBuffer[0].balls);
+        return;
+      }
+      const interpolationDelayMs = 100;
+      const renderTimeMs = Date.now() - interpolationDelayMs;
+      while (
+        stageState.snapshotBuffer.length >= 2 &&
+        stageState.snapshotBuffer[1].serverTimeMs <= renderTimeMs
+      ) {
+        stageState.snapshotBuffer.shift();
+      }
+      const previous = stageState.snapshotBuffer[0];
+      const next = stageState.snapshotBuffer[1] || previous;
+      const span = Math.max(1, next.serverTimeMs - previous.serverTimeMs);
+      const alpha = Math.max(0, Math.min(1, (renderTimeMs - previous.serverTimeMs) / span));
+      drawBalls(interpolateSnapshots(previous, next, alpha));
+    }
+
     function renderStageFrame() {
       const context = stageState.context;
       if (!context) {
@@ -971,6 +1056,18 @@ function renderRoomPage(roomId: string): string {
         stageState.viewport.width,
         stageState.viewport.height,
       );
+      renderInterpolatedBalls();
+    }
+
+    function runStageRenderLoop() {
+      renderStageFrame();
+      stageState.animationFrameId = window.requestAnimationFrame(runStageRenderLoop);
+    }
+
+    function seedStageSnapshots() {
+      const now = Date.now();
+      pushStageSnapshot(createDefaultStageSnapshot(1, now - 50));
+      pushStageSnapshot(createDefaultStageSnapshot(2, now));
     }
 
     function initRoomStage() {
@@ -986,6 +1083,7 @@ function renderRoomPage(roomId: string): string {
       stageState.context = context;
       resizeStageCanvas();
       drawStageFallback(context);
+      seedStageSnapshots();
       const image = new Image();
       stageState.image = image;
       image.onload = () => {
@@ -1018,7 +1116,11 @@ function renderRoomPage(roomId: string): string {
       window.__bhcRoomStage = {
         worldToCanvas,
         canvasToWorld,
+        pushSnapshot: pushStageSnapshot,
       };
+      if (!stageState.animationFrameId) {
+        stageState.animationFrameId = window.requestAnimationFrame(runStageRenderLoop);
+      }
     }
 
     function getRoomErrorMessage(errorCode) {
