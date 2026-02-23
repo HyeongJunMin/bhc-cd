@@ -390,6 +390,38 @@ export function kickRoomMember(
   return { ok: true, room };
 }
 
+export function leaveRoomMember(state: LobbyState, roomId: string, actorMemberId: string): RoomActionResult {
+  const room = state.rooms.find((item) => item.roomId === roomId);
+  if (!room) {
+    return { ok: false, statusCode: 404, errorCode: 'ROOM_NOT_FOUND' };
+  }
+
+  const targetIndex = room.members.findIndex((member) => member.memberId === actorMemberId);
+  if (targetIndex < 0) {
+    return { ok: false, statusCode: 404, errorCode: 'ROOM_MEMBER_NOT_FOUND' };
+  }
+
+  const wasHost = room.hostMemberId === actorMemberId;
+  room.members.splice(targetIndex, 1);
+  room.playerCount = room.members.length;
+  delete room.scoreBoard[actorMemberId];
+  delete room.memberGameStates[actorMemberId];
+  if (wasHost) {
+    room.hostMemberId = room.members[0]?.memberId ?? null;
+  }
+
+  if (room.members.length === 0) {
+    room.currentTurnIndex = 0;
+    room.turnDeadlineMs = null;
+  } else {
+    room.currentTurnIndex = Math.min(room.currentTurnIndex, room.members.length - 1);
+    if (room.state === 'IN_GAME') {
+      room.turnDeadlineMs = Date.now() + TURN_DURATION_MS;
+    }
+  }
+  return { ok: true, room };
+}
+
 export function sendRoomChatMessage(
   state: LobbyState,
   roomId: string,
@@ -495,6 +527,28 @@ async function handleKickRoomMember(req: IncomingMessage, res: ServerResponse, s
   const actorMemberId = typeof body.actorMemberId === 'string' ? body.actorMemberId : '';
   const targetMemberId = typeof body.targetMemberId === 'string' ? body.targetMemberId : '';
   const result = kickRoomMember(state, roomId, actorMemberId, targetMemberId);
+  if (!result.ok) {
+    writeJson(res, result.statusCode, { errorCode: result.errorCode });
+    return;
+  }
+  writeJson(res, 200, { room: result.room });
+}
+
+async function handleLeaveRoom(req: IncomingMessage, res: ServerResponse, state: LobbyState): Promise<void> {
+  const match = req.url?.match(/^\/lobby\/rooms\/([^/]+)\/leave$/);
+  const roomId = match?.[1];
+  if (!roomId) {
+    writeJson(res, 404, { errorCode: 'ROOM_NOT_FOUND' });
+    return;
+  }
+
+  const body = await parseJsonBody(req, res);
+  if (!body) {
+    return;
+  }
+
+  const actorMemberId = typeof body.actorMemberId === 'string' ? body.actorMemberId : '';
+  const result = leaveRoomMember(state, roomId, actorMemberId);
   if (!result.ok) {
     writeJson(res, result.statusCode, { errorCode: result.errorCode });
     return;
@@ -840,6 +894,11 @@ export function createLobbyHttpServer() {
 
     if (req.method === 'POST' && req.url?.startsWith('/lobby/rooms/') && req.url.endsWith('/kick')) {
       await handleKickRoomMember(req, res, state);
+      return;
+    }
+
+    if (req.method === 'POST' && req.url?.startsWith('/lobby/rooms/') && req.url.endsWith('/leave')) {
+      await handleLeaveRoom(req, res, state);
       return;
     }
 

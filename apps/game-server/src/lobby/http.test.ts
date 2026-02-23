@@ -7,6 +7,7 @@ import {
   getRoomDetail,
   joinRoom,
   kickRoomMember,
+  leaveRoomMember,
   listRooms,
   openRoomSnapshotStream,
   rematchRoomGame,
@@ -140,6 +141,25 @@ test('강퇴: 방장이 타겟 멤버를 제거하면 인원이 감소한다', (
   if (kicked.ok) {
     assert.equal(kicked.room.playerCount, 1);
     assert.equal(kicked.room.members[0].memberId, 'u1');
+  }
+});
+
+test('나가기: 멤버가 leave를 호출하면 룸에서 제거되고 host가 비면 다음 멤버로 위임된다', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'leave-room' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  joinRoom(state, created.room.roomId, { memberId: 'u2', displayName: 'guest' });
+  const left = leaveRoomMember(state, created.room.roomId, 'u1');
+  assert.equal(left.ok, true);
+  if (left.ok) {
+    assert.equal(left.room.playerCount, 1);
+    assert.equal(left.room.members[0].memberId, 'u2');
+    assert.equal(left.room.hostMemberId, 'u2');
   }
 });
 

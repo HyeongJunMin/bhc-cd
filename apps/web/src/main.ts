@@ -1656,7 +1656,21 @@ function renderRoomPage(roomId: string): string {
       }
     });
 
-    leaveBtn.addEventListener('click', () => {
+    leaveBtn.addEventListener('click', async () => {
+      if (!myMemberId) {
+        window.location.href = '/lobby';
+        return;
+      }
+      const result = await requestJson('/api/lobby/rooms/${roomId}/leave', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ actorMemberId: myMemberId }),
+      });
+      if (!result.ok) {
+        const errorCode = result.data.errorCode || 'UNKNOWN_ERROR';
+        setRoomMessage('나가기 실패: ' + getRoomErrorMessage(errorCode), 'error');
+        return;
+      }
       window.location.href = '/lobby';
     });
 
@@ -1832,6 +1846,11 @@ const server = createServer(async (req, res) => {
   }
 
   if (req.method === 'POST' && req.url?.startsWith('/api/lobby/rooms/') && req.url.endsWith('/kick')) {
+    await proxyJsonRequest(req, res, `${lobbyServerUrl}${req.url.replace('/api', '')}`, 'POST', 'LOBBY_SERVER_UNAVAILABLE');
+    return;
+  }
+
+  if (req.method === 'POST' && req.url?.startsWith('/api/lobby/rooms/') && req.url.endsWith('/leave')) {
     await proxyJsonRequest(req, res, `${lobbyServerUrl}${req.url.replace('/api', '')}`, 'POST', 'LOBBY_SERVER_UNAVAILABLE');
     return;
   }

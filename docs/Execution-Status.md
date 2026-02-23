@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 176 |
-| Todo | 19 |
+| Todo | 18 |
 | In Progress | 0 |
-| Done | 157 |
+| Done | 158 |
 | Blocked | 0 |
-| Last Updated | 2026-02-23 11:21 |
+| Last Updated | 2026-02-23 11:23 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | GAME-END-001D | done | 2026-02-23 11:21 | FINISHED/비턴 플레이어 샷 입력 잠금 조건 강화 완료 |
+| Agent A (web) | LEAVE-001A | done | 2026-02-23 11:23 | 룸 leave API 및 웹 나가기 연동 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -182,7 +182,7 @@
 | GAME-END-001B | Agent A | done | 2026-02-23 11:20 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(20 pass) | - | GAME-END-001C | 10점 즉시 FINISHED 전이 구현 완료 |
 | GAME-END-001C | Agent A | done | 2026-02-23 11:20 | `rg -n \"game_finished|winnerMemberId|memberGameStates\" apps/game-server/src/lobby/http.ts apps/web/src/main.ts` 확인 | - | GAME-END-001D | winner/loser 상태 이벤트/API 반영 완료 |
 | GAME-END-001D | Agent A | done | 2026-02-23 11:21 | `rg -n \"currentRoomState|currentTurnMemberId|shotInputLocked = room.state !== 'IN_GAME'\" apps/web/src/main.ts` 확인 | - | LEAVE-001A | FINISHED/비턴 플레이어 샷 입력 잠금 조건 반영 완료 |
-| LEAVE-001A | Agent A | todo | 2026-02-23 11:03 | - | - | LEAVE-001B | `POST /lobby/rooms/:roomId/leave` API 추가 예정 |
+| LEAVE-001A | Agent A | done | 2026-02-23 11:23 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(21 pass) | - | LEAVE-001B | `POST /lobby/rooms/:roomId/leave` API 및 웹 나가기 버튼 연동 완료 |
 | LEAVE-001B | Agent A | todo | 2026-02-23 11:03 | - | - | LEAVE-001C | disconnect 10초 유예 타이머 구현 예정 |
 | LEAVE-001C | Agent A | todo | 2026-02-23 11:03 | - | - | LEAVE-001D | 미복귀 LOSE 확정/멤버 제거 구현 예정 |
 | LEAVE-001D | Agent A | todo | 2026-02-23 11:03 | - | - | HOST-DELEGATE-001A | 유예중 복귀 취소/세션 복원 테스트 예정 |
