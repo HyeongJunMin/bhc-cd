@@ -253,6 +253,26 @@ test('채팅 전송: 3초 이내 연속 전송이면 CHAT_RATE_LIMITED를 반환
   }
 });
 
+test('채팅 전송: 동일 시점 2회 요청 시 1회만 성공하고 나머지는 CHAT_RATE_LIMITED로 거부된다', async () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'chat-race' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  const [first, second] = await Promise.all([
+    Promise.resolve().then(() => sendRoomChatMessage(state, created.room.roomId, 'u1', 'first')),
+    Promise.resolve().then(() => sendRoomChatMessage(state, created.room.roomId, 'u1', 'second')),
+  ]);
+  const successCount = [first, second].filter((item) => item.ok).length;
+  const blockedCount = [first, second].filter((item) => !item.ok && item.errorCode === 'CHAT_RATE_LIMITED').length;
+  assert.equal(successCount, 1);
+  assert.equal(blockedCount, 1);
+  assert.equal(created.room.chatMessages.length, 1);
+});
+
 test('샷 입력 제출: 스키마 유효 payload면 accepted 된다', () => {
   const { state } = createLobbyHttpServer();
   const created = createRoom(state, { title: 'shot-room' });
