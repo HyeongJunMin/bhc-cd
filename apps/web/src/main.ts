@@ -996,6 +996,8 @@ function renderRoomPage(roomId: string): string {
     let streamMemberId = null;
     let myMemberId = null;
     let currentTurnDeadlineMs = null;
+    let currentRoomState = 'WAITING';
+    let currentTurnMemberId = null;
     const cueBallAnchor = { x: 0.70, y: 0.71 };
     const dragInputState = {
       active: false,
@@ -1491,6 +1493,7 @@ function renderRoomPage(roomId: string): string {
       const scoreBoard = room && typeof room.scoreBoard === 'object' && room.scoreBoard ? room.scoreBoard : {};
       const currentTurnIndex = Number.isInteger(room.currentTurnIndex) ? room.currentTurnIndex : 0;
       const currentTurnMember = members[currentTurnIndex] || null;
+      currentTurnMemberId = currentTurnMember ? String(currentTurnMember.memberId) : null;
       hudTurn.textContent = currentTurnMember ? currentTurnMember.displayName : '-';
       currentTurnDeadlineMs = Number.isFinite(room.turnDeadlineMs) ? Number(room.turnDeadlineMs) : null;
       hudTimer.textContent = String(getRemainingTurnSeconds(currentTurnDeadlineMs));
@@ -1569,6 +1572,12 @@ function renderRoomPage(roomId: string): string {
       document.getElementById('rematch-btn').disabled = !canRematch;
       renderMembers(room, myMemberId, Boolean(isHost));
       renderHud(room);
+      currentRoomState = room.state;
+      shotInputLocked = room.state !== 'IN_GAME'
+        || !amIMember
+        || !currentTurnMemberId
+        || String(currentTurnMemberId) !== String(myMemberId);
+      updateShotInputLockUi();
 
       if (!amIMember && myMemberId) {
         setFlowBanner('방에서 제외되었습니다. 로비로 이동합니다.', 'warn');
@@ -1654,6 +1663,10 @@ function renderRoomPage(roomId: string): string {
     async function submitShotInput(source) {
       if (!myMemberId) {
         setRoomMessage('세션 정보가 없습니다. 다시 로그인해 주세요.', 'error');
+        return false;
+      }
+      if (currentRoomState !== 'IN_GAME') {
+        setShotMessage('현재 상태에서는 샷을 입력할 수 없습니다.', 'error');
         return false;
       }
       if (shotSubmitInFlight || shotInputLocked) {
