@@ -6,6 +6,7 @@ import { validateRoomTitle } from './validate-room-title.ts';
 import { evaluateRoomJoin } from '../room/join-policy.ts';
 import { startGameRequest } from '../game/start-policy.ts';
 import { transitionShotLifecycleState, type ShotLifecycleState } from '../game/shot-state-machine.ts';
+import { serializeRoomSnapshot } from '../game/snapshot-serializer.ts';
 import { handleShotInputEntry } from '../input/shot-input-entry.ts';
 
 const ROOM_SNAPSHOT_BROADCAST_INTERVAL_MS = 50;
@@ -548,18 +549,18 @@ function nextRoomSnapshotSeq(state: LobbyState, roomId: string): number {
 }
 
 function buildRoomSnapshot(state: LobbyState, room: LobbyRoom) {
-  return {
+  return serializeRoomSnapshot({
     roomId: room.roomId,
     seq: nextRoomSnapshotSeq(state, room.roomId),
     serverTimeMs: Date.now(),
     state: room.state,
-    turn: { currentMemberId: room.members[0]?.memberId ?? null },
+    currentMemberId: room.members[0]?.memberId ?? null,
     balls: [
-      { id: 'cueBall' as const, x: 0.70, y: 0.71, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
-      { id: 'objectBall1' as const, x: 2.10, y: 0.62, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
-      { id: 'objectBall2' as const, x: 2.24, y: 0.80, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
+      { id: 'cueBall', x: 0.70, y: 0.71, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
+      { id: 'objectBall1', x: 2.10, y: 0.62, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
+      { id: 'objectBall2', x: 2.24, y: 0.80, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
     ],
-  };
+  });
 }
 
 export function openRoomSnapshotStream(state: LobbyState, roomId: string, memberIdRaw: string): RoomStreamOpenResult {
