@@ -836,6 +836,20 @@ function renderRoomPage(roomId: string): string {
     const shotErrors = document.getElementById('shot-errors');
     let myMemberId = null;
     let timerValue = 10;
+    const TABLE_WORLD_WIDTH_M = 2.84;
+    const TABLE_WORLD_HEIGHT_M = 1.42;
+    const stageState = {
+      context: null,
+      image: null,
+      imageLoaded: false,
+      viewport: {
+        offsetX: 0,
+        offsetY: 0,
+        width: 0,
+        height: 0,
+      },
+      dpr: 1,
+    };
     const ROOM_ERROR_MESSAGES = {
       ROOM_HOST_ONLY: '방장만 실행할 수 있습니다.',
       ROOM_MEMBER_NOT_FOUND: '대상을 찾을 수 없습니다.',
@@ -873,6 +887,50 @@ function renderRoomPage(roomId: string): string {
       stageMessage.style.color = isError ? '#b91c1c' : '#334155';
     }
 
+    function updateStageViewport() {
+      const contentWidth = roomStage.width;
+      const contentHeight = roomStage.height;
+      const tableAspect = TABLE_WORLD_WIDTH_M / TABLE_WORLD_HEIGHT_M;
+      const contentAspect = contentWidth / contentHeight;
+      if (contentAspect > tableAspect) {
+        stageState.viewport.height = contentHeight;
+        stageState.viewport.width = contentHeight * tableAspect;
+        stageState.viewport.offsetX = (contentWidth - stageState.viewport.width) / 2;
+        stageState.viewport.offsetY = 0;
+        return;
+      }
+      stageState.viewport.width = contentWidth;
+      stageState.viewport.height = contentWidth / tableAspect;
+      stageState.viewport.offsetX = 0;
+      stageState.viewport.offsetY = (contentHeight - stageState.viewport.height) / 2;
+    }
+
+    function worldToCanvas(point) {
+      return {
+        x: stageState.viewport.offsetX + (point.x / TABLE_WORLD_WIDTH_M) * stageState.viewport.width,
+        y: stageState.viewport.offsetY + (point.y / TABLE_WORLD_HEIGHT_M) * stageState.viewport.height,
+      };
+    }
+
+    function canvasToWorld(point) {
+      const x = (point.x - stageState.viewport.offsetX) / stageState.viewport.width;
+      const y = (point.y - stageState.viewport.offsetY) / stageState.viewport.height;
+      return {
+        x: Math.max(0, Math.min(TABLE_WORLD_WIDTH_M, x * TABLE_WORLD_WIDTH_M)),
+        y: Math.max(0, Math.min(TABLE_WORLD_HEIGHT_M, y * TABLE_WORLD_HEIGHT_M)),
+      };
+    }
+
+    function resizeStageCanvas() {
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const cssWidth = Math.max(320, Math.floor(roomStage.clientWidth));
+      const cssHeight = Math.max(160, Math.floor(roomStage.clientHeight));
+      roomStage.width = Math.floor(cssWidth * dpr);
+      roomStage.height = Math.floor(cssHeight * dpr);
+      stageState.dpr = dpr;
+      updateStageViewport();
+    }
+
     function drawStageFallback(context) {
       const width = roomStage.width;
       const height = roomStage.height;
@@ -880,10 +938,39 @@ function renderRoomPage(roomId: string): string {
       context.fillStyle = '#0f172a';
       context.fillRect(0, 0, width, height);
       context.fillStyle = '#155e75';
-      context.fillRect(16, 16, width - 32, height - 32);
+      context.fillRect(
+        stageState.viewport.offsetX,
+        stageState.viewport.offsetY,
+        stageState.viewport.width,
+        stageState.viewport.height,
+      );
       context.strokeStyle = '#94a3b8';
       context.lineWidth = 4;
-      context.strokeRect(16, 16, width - 32, height - 32);
+      context.strokeRect(
+        stageState.viewport.offsetX,
+        stageState.viewport.offsetY,
+        stageState.viewport.width,
+        stageState.viewport.height,
+      );
+    }
+
+    function renderStageFrame() {
+      const context = stageState.context;
+      if (!context) {
+        return;
+      }
+      if (!stageState.imageLoaded || !stageState.image) {
+        drawStageFallback(context);
+        return;
+      }
+      context.clearRect(0, 0, roomStage.width, roomStage.height);
+      context.drawImage(
+        stageState.image,
+        stageState.viewport.offsetX,
+        stageState.viewport.offsetY,
+        stageState.viewport.width,
+        stageState.viewport.height,
+      );
     }
 
     function initRoomStage() {
@@ -896,18 +983,42 @@ function renderRoomPage(roomId: string): string {
         return;
       }
 
+      stageState.context = context;
+      resizeStageCanvas();
       drawStageFallback(context);
       const image = new Image();
+      stageState.image = image;
       image.onload = () => {
-        context.clearRect(0, 0, roomStage.width, roomStage.height);
-        context.drawImage(image, 0, 0, roomStage.width, roomStage.height);
-        setStageMessage('테이블 이미지 렌더 준비 완료', false);
+        stageState.imageLoaded = true;
+        renderStageFrame();
+        const originCanvas = worldToCanvas({ x: 0, y: 0 });
+        setStageMessage(
+          '테이블 렌더 준비 완료 (DPR ' + stageState.dpr.toFixed(2) + ', origin=' + originCanvas.x.toFixed(1) + ',' + originCanvas.y.toFixed(1) + ')',
+          false,
+        );
       };
       image.onerror = () => {
+        stageState.imageLoaded = false;
         drawStageFallback(context);
         setStageMessage('테이블 이미지 로드에 실패했습니다. 기본 스테이지를 표시합니다.', true);
       };
       image.src = '/assets/table/table-top.png';
+      window.addEventListener('resize', () => {
+        resizeStageCanvas();
+        renderStageFrame();
+      });
+      roomStage.addEventListener('pointermove', (event) => {
+        const bounds = roomStage.getBoundingClientRect();
+        const localX = (event.clientX - bounds.left) * stageState.dpr;
+        const localY = (event.clientY - bounds.top) * stageState.dpr;
+        const worldPoint = canvasToWorld({ x: localX, y: localY });
+        roomStage.dataset.worldX = worldPoint.x.toFixed(3);
+        roomStage.dataset.worldY = worldPoint.y.toFixed(3);
+      });
+      window.__bhcRoomStage = {
+        worldToCanvas,
+        canvasToWorld,
+      };
     }
 
     function getRoomErrorMessage(errorCode) {

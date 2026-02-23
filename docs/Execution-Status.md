@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 144 |
-| Todo | 14 |
+| Todo | 13 |
 | In Progress | 0 |
-| Done | 130 |
+| Done | 131 |
 | Blocked | 0 |
-| Last Updated | 2026-02-23 10:22 |
+| Last Updated | 2026-02-23 10:24 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | ROOM-UI-002A | done | 2026-02-23 10:22 | 룸 캔버스 스테이지/테이블 이미지 렌더 골격 구현 완료 |
+| Agent A (web) | ROOM-UI-002B | done | 2026-02-23 10:24 | 월드좌표<->캔버스 변환 및 반응형 스케일 규칙 적용 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -156,7 +156,7 @@
 | QA-E2E-001 | Agent A | done | 2026-02-23 09:18 | `node --experimental-strip-types scripts/qa/e2e-room-flow.ts` 통과 | - | - | 게스트 로그인→방생성/입장→시작→채팅→샷→강퇴 통합 흐름 스모크 자동화 완료 |
 | ROOM-ARCH-001 | Agent A | done | 2026-02-23 09:54 | `cat docs/Room-Play-Plan.md`, `cat docs/Execution-Backlog-Micro.md` 확인 | - | ROOM-UI-002A | ROOM-UI-001 이후 A안(20Hz)/B안(TODO) 상세 실행계획 문서화 완료 |
 | ROOM-UI-002A | Agent A | done | 2026-02-23 10:22 | `WEB_PORT=9217 pnpm --filter @bhc/web run dev`, `curl -sS http://localhost:9217/room/room-1 \| rg \"room-stage\|table-top.png\"`, `curl -sS -D - http://localhost:9217/assets/table/table-top.png -o /tmp/bhc/table-top.bin` 확인 | - | ROOM-UI-002B | Canvas 2D 스테이지/테이블 이미지 렌더 골격 구현 완료 |
-| ROOM-UI-002B | Agent A | todo | - | - | - | ROOM-UI-002C | 월드좌표<->캔버스 좌표 변환/반응형 스케일 적용 예정 |
+| ROOM-UI-002B | Agent A | done | 2026-02-23 10:24 | `WEB_PORT=9217 pnpm --filter @bhc/web run dev`, `curl -sS http://localhost:9217/room/room-1 \| rg \"worldToCanvas\|canvasToWorld\|resizeStageCanvas\"`, `curl -sS -D - http://localhost:9217/assets/table/table-top.png -o /tmp/bhc/table-top.bin` 확인 | - | ROOM-UI-002C | 월드좌표<->캔버스 좌표 변환/반응형 스케일 적용 완료 |
 | ROOM-UI-002C | Agent A | todo | - | - | - | ROOM-NET-001A | 공 렌더/보간 루프 구현 예정 |
 | ROOM-NET-001A | Agent B | todo | - | - | - | ROOM-NET-001B | 룸 snapshot 스트림 엔드포인트 추가 예정 |
 | ROOM-NET-001B | Agent B | todo | - | - | - | ROOM-NET-001C | 20Hz broadcaster/seq 전송 구현 예정 |
