@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  applyDisconnectForfeit,
   createLobbyHttpServer,
   createRoom,
   getRoomDetail,
@@ -353,6 +354,31 @@ test('샷 종료: 10점 도달 시 FINISHED와 winner가 설정되고 game_finis
   assert.equal(created.room.scoreBoard.u1, 10);
   const output = writes.join('');
   assert.ok(output.includes('event: game_finished'));
+});
+
+test('연결해제 유예 만료: IN_GAME에서 미복귀 시 LOSE 처리되고 1인 생존자는 즉시 WIN으로 종료된다', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'disconnect-win' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  joinRoom(state, created.room.roomId, { memberId: 'u2', displayName: 'guest' });
+  const started = startRoomGame(state, created.room.roomId, 'u1');
+  assert.equal(started.ok, true);
+  if (!started.ok) {
+    return;
+  }
+
+  applyDisconnectForfeit(state, created.room.roomId, 'u1');
+
+  assert.equal(created.room.state, 'FINISHED');
+  assert.equal(created.room.winnerMemberId, 'u2');
+  assert.equal(created.room.memberGameStates.u1, 'LOSE');
+  assert.equal(created.room.memberGameStates.u2, 'WIN');
+  assert.equal(created.room.members.length, 1);
+  assert.equal(created.room.members[0].memberId, 'u2');
 });
 
 test('룸 스트림 오픈: 룸 멤버면 snapshot을 반환한다', () => {

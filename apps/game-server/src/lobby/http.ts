@@ -13,6 +13,7 @@ import { increaseScoreAndCheckGameEnd } from '../game/score-policy.ts';
 
 const ROOM_SNAPSHOT_BROADCAST_INTERVAL_MS = 50;
 const TURN_DURATION_MS = 10_000;
+const DISCONNECT_GRACE_MS = 10_000;
 
 type LobbyRoom = {
   roomId: string;
@@ -45,6 +46,7 @@ type LobbyState = {
   roomStreamSeqByRoomId: Record<string, number>;
   roomStreamSubscribers: Record<string, Set<ServerResponse>>;
   shotStateResetTimers: Record<string, ReturnType<typeof setTimeout> | null>;
+  disconnectGraceTimers: Record<string, ReturnType<typeof setTimeout> | null>;
   userLastChatSentAtByRoomAndMember: UserLastSentAtStore;
 };
 
@@ -152,6 +154,69 @@ function initializeRoomGameRuntime(room: LobbyRoom): void {
     acc[member.memberId] = 'PLAYING';
     return acc;
   }, {});
+}
+
+function getDisconnectTimerKey(roomId: string, memberId: string): string {
+  return `${roomId}:${memberId}`;
+}
+
+function clearDisconnectGraceTimer(state: LobbyState, roomId: string, memberId: string): void {
+  const key = getDisconnectTimerKey(roomId, memberId);
+  const timer = state.disconnectGraceTimers[key];
+  if (timer) {
+    clearTimeout(timer);
+  }
+  state.disconnectGraceTimers[key] = null;
+}
+
+function settleSingleSurvivorWin(state: LobbyState, room: LobbyRoom): void {
+  if (room.state !== 'IN_GAME' || room.members.length !== 1) {
+    return;
+  }
+  const winner = room.members[0]?.memberId ?? null;
+  if (!winner) {
+    return;
+  }
+  room.state = 'FINISHED';
+  room.winnerMemberId = winner;
+  room.memberGameStates[winner] = 'WIN';
+  broadcastRoomEvent(state, room.roomId, 'game_finished', {
+    roomId: room.roomId,
+    winnerMemberId: room.winnerMemberId,
+    memberGameStates: room.memberGameStates,
+    scoreBoard: room.scoreBoard,
+    serverTimeMs: Date.now(),
+  });
+}
+
+export function applyDisconnectForfeit(state: LobbyState, roomId: string, memberId: string): void {
+  const room = state.rooms.find((item) => item.roomId === roomId);
+  if (!room || room.state !== 'IN_GAME') {
+    return;
+  }
+  const stillMember = room.members.some((member) => member.memberId === memberId);
+  if (!stillMember) {
+    return;
+  }
+  room.memberGameStates[memberId] = 'LOSE';
+  const left = leaveRoomMember(state, roomId, memberId);
+  if (!left.ok) {
+    return;
+  }
+  settleSingleSurvivorWin(state, left.room);
+}
+
+function scheduleDisconnectGraceTimer(state: LobbyState, roomId: string, memberId: string): void {
+  const room = state.rooms.find((item) => item.roomId === roomId);
+  if (!room || room.state !== 'IN_GAME') {
+    return;
+  }
+  clearDisconnectGraceTimer(state, roomId, memberId);
+  const key = getDisconnectTimerKey(roomId, memberId);
+  state.disconnectGraceTimers[key] = setTimeout(() => {
+    applyDisconnectForfeit(state, roomId, memberId);
+    state.disconnectGraceTimers[key] = null;
+  }, DISCONNECT_GRACE_MS);
 }
 
 function writeJson(res: ServerResponse, statusCode: number, payload: unknown): void {
@@ -377,7 +442,7 @@ export function kickRoomMember(
   room.members.splice(targetIndex, 1);
   room.playerCount = room.members.length;
   delete room.scoreBoard[targetMemberId];
-  delete room.memberGameStates[targetMemberId];
+  room.memberGameStates[targetMemberId] = 'KICKED';
   if (room.members.length === 0) {
     room.currentTurnIndex = 0;
     room.turnDeadlineMs = null;
@@ -402,10 +467,15 @@ export function leaveRoomMember(state: LobbyState, roomId: string, actorMemberId
   }
 
   const wasHost = room.hostMemberId === actorMemberId;
+  clearDisconnectGraceTimer(state, roomId, actorMemberId);
+  if (room.state === 'IN_GAME') {
+    room.memberGameStates[actorMemberId] = 'LOSE';
+  } else {
+    delete room.memberGameStates[actorMemberId];
+  }
   room.members.splice(targetIndex, 1);
   room.playerCount = room.members.length;
   delete room.scoreBoard[actorMemberId];
-  delete room.memberGameStates[actorMemberId];
   if (wasHost) {
     room.hostMemberId = room.members[0]?.memberId ?? null;
   }
@@ -419,6 +489,7 @@ export function leaveRoomMember(state: LobbyState, roomId: string, actorMemberId
       room.turnDeadlineMs = Date.now() + TURN_DURATION_MS;
     }
   }
+  settleSingleSurvivorWin(state, room);
   return { ok: true, room };
 }
 
@@ -771,6 +842,7 @@ export function openRoomSnapshotStream(state: LobbyState, roomId: string, member
   if (memberId.length === 0) {
     return { ok: false, statusCode: 400, errorCode: 'ROOM_MEMBER_ID_REQUIRED' };
   }
+  clearDisconnectGraceTimer(state, roomId, memberId);
 
   const isMember = room.members.some((member) => member.memberId === memberId);
   if (!isMember) {
@@ -819,6 +891,7 @@ function handleRoomSnapshotStream(req: IncomingMessage, res: ServerResponse, sta
   const cleanup = () => {
     clearInterval(heartbeat);
     state.roomStreamSubscribers[roomId]?.delete(res);
+    scheduleDisconnectGraceTimer(state, roomId, memberId);
   };
   req.on('close', cleanup);
   res.on('close', cleanup);
@@ -848,6 +921,7 @@ export function createLobbyHttpServer() {
     roomStreamSeqByRoomId: {},
     roomStreamSubscribers: {},
     shotStateResetTimers: {},
+    disconnectGraceTimers: {},
     userLastChatSentAtByRoomAndMember: new Map(),
   };
 
