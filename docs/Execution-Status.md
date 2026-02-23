@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 176 |
-| Todo | 10 |
+| Todo | 9 |
 | In Progress | 0 |
-| Done | 166 |
+| Done | 167 |
 | Blocked | 0 |
-| Last Updated | 2026-02-23 11:27 |
+| Last Updated | 2026-02-23 11:28 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | CHAT-RL-001D | done | 2026-02-23 11:27 | 레이트리밋 응답 계약/동시요청 거부 회귀 테스트 완료 |
+| Agent A (web) | HUD-REAL-001D | done | 2026-02-23 11:28 | 턴 전환 후 deadline/턴 인덱스 동기화 테스트 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -177,7 +177,7 @@
 | HUD-REAL-001A | Agent A | done | 2026-02-23 11:18 | `node --experimental-strip-types --test apps/game-server/src/game/snapshot-serializer.test.ts` 통과(2 pass) | - | HUD-REAL-001B | room snapshot/detail payload에 scoreBoard/currentTurn/deadline 필드 확장 완료 |
 | HUD-REAL-001B | Agent A | done | 2026-02-23 11:18 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(19 pass) | - | HUD-REAL-001C | shot lifecycle에 turn 인덱스/turnDeadline 갱신 로직 연동 완료 |
 | HUD-REAL-001C | Agent A | done | 2026-02-23 11:18 | `rg -n \"renderHud\\(|scoreBoard|turnDeadlineMs|getRemainingTurnSeconds\" apps/web/src/main.ts` 확인 | - | HUD-REAL-001D | 웹 HUD 서버 authoritative 렌더 전환 완료 |
-| HUD-REAL-001D | Agent A | todo | 2026-02-23 11:03 | - | - | GAME-END-001A | 재접속/백그라운드 HUD 동기화 테스트 예정 |
+| HUD-REAL-001D | Agent A | done | 2026-02-23 11:28 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(26 pass) | - | GAME-END-001A | 턴 전환 후 deadline/currentTurn 동기화 테스트 추가 완료 |
 | GAME-END-001A | Agent A | done | 2026-02-23 11:20 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(20 pass) | - | GAME-END-001B | shot_resolved 시 score-policy 런타임 연결 완료 |
 | GAME-END-001B | Agent A | done | 2026-02-23 11:20 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(20 pass) | - | GAME-END-001C | 10점 즉시 FINISHED 전이 구현 완료 |
 | GAME-END-001C | Agent A | done | 2026-02-23 11:20 | `rg -n \"game_finished|winnerMemberId|memberGameStates\" apps/game-server/src/lobby/http.ts apps/web/src/main.ts` 확인 | - | GAME-END-001D | winner/loser 상태 이벤트/API 반영 완료 |
