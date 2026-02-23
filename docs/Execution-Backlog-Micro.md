@@ -273,28 +273,103 @@
 
 #### ROOM-UI-002 캔버스 테이블 렌더
 - `ROOM-UI-002A`: `/room/:id`에 Canvas 2D 스테이지와 테이블 이미지(`/assets/table/table-top.png`) 렌더 골격 추가
+  - 입력: `apps/web/src/main.ts`, `apps/web/public/assets/table/table-top.png`
+  - 출력: room 템플릿에 `<canvas id="room-stage">` 추가, 이미지 preload 코드
+  - 작업: 캔버스 mount -> 2D context 획득 -> 이미지 로드 성공/실패 분기
+  - DoD: room 진입 시 빈 화면이 아닌 테이블 이미지가 1프레임 이상 렌더됨
+  - 검증: `WEB_PORT=9213 pnpm --filter @bhc/web run dev`, `curl -sS http://localhost:9213/room/room-1 | rg "room-stage|table-top.png"`
 - `ROOM-UI-002B`: 월드좌표<->캔버스 좌표 변환/반응형 스케일 규칙 적용
+  - 입력: `packages/physics-core` 좌표계(미터), canvas 실제 픽셀 크기
+  - 출력: `worldToCanvas`, `canvasToWorld`, resize recalculation 유틸
+  - 작업: 기준 테이블 월드폭/높이 상수 고정 -> 레터박스 스케일 계산 -> DPR 반영
+  - DoD: 리사이즈 후에도 공/테이블 비율이 유지되고 클릭 역변환 오차가 허용범위 내
+  - 검증: `node --experimental-strip-types --test apps/web/src/room-coordinate.test.ts` (신규)
 - `ROOM-UI-002C`: 공 렌더(원/스프라이트) + snapshot 보간 루프 추가
+  - 입력: `room_snapshot.balls[]`, `seq`, `serverTimeMs`
+  - 출력: 60fps 렌더 루프에서 보간된 공 위치 렌더
+  - 작업: 최신 snapshot 2개 버퍼링 -> `alpha` 계산 -> 각 공 위치/속도 시각화
+  - DoD: 20Hz 수신 환경에서 공 이동이 프레임 점프 없이 연속적으로 보임
+  - 검증: `curl -sS http://localhost:9213/room/room-1 | rg "requestAnimationFrame|interpol"`
 
 #### ROOM-NET-001 룸 실시간 스냅샷 전송
 - `ROOM-NET-001A`: game-server 룸 snapshot 스트림 엔드포인트 추가
+  - 입력: 기존 `apps/game-server/src/lobby/http.ts` 라우팅 체계
+  - 출력: 룸 단위 스트림 연결 엔드포인트(`/room-stream/:roomId` 또는 동등 경로)
+  - 작업: 연결/해제 훅, room membership 검사, 인증 실패 코드 정의
+  - DoD: 비멤버는 구독 실패(403), 멤버는 연결 성공
+  - 검증: `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
 - `ROOM-NET-001B`: 20Hz broadcaster와 `seq` 기반 full snapshot 전송 구현
+  - 입력: 룸 상태 + 물리 tick 결과
+  - 출력: `room_snapshot` 메시지(`seq`, `serverTimeMs`, `balls[]`)
+  - 작업: 50ms broadcast scheduler -> `seq` 단조 증가 -> 역행 `seq` 방지
+  - DoD: 수신 로그 기준 20Hz(±10%) 및 `seq` strictly increasing
+  - 검증: `node --experimental-strip-types scripts/qa/room-stream-rate-check.ts` (신규)
 - `ROOM-NET-001C`: web 서버 프록시/연결 경로(`/api/room-stream/*`) 연동
+  - 입력: web server 라우팅(`apps/web/src/main.ts`)
+  - 출력: 브라우저에서 사용할 단일 same-origin 스트림 경로
+  - 작업: 업그레이드/스트림 프록시 + roomId 전달 + 에러 응답 전달
+  - DoD: 브라우저 콘솔에서 CORS/upgrade 오류 없이 스트림 연결
+  - 검증: `curl -i http://localhost:9213/api/room-stream/room-1`
 
 #### ROOM-SIM-001 샷 라이프사이클 동기화
 - `ROOM-SIM-001A`: shot 상태머신(`idle/running/resolved`) 구현
+  - 입력: 샷 제출 이벤트, 타이머, 물리 정지 판정
+  - 출력: 상태 전이표 + guard(`running` 중 중복샷 거부)
+  - 작업: `idle->running->resolved->idle` 전이 및 invalid transition 차단
+  - DoD: 상태 전이 테스트에서 경합 입력이 규칙대로 차단
+  - 검증: `node --experimental-strip-types --test apps/game-server/src/game/shot-state-machine.test.ts` (신규)
 - `ROOM-SIM-001B`: 물리 tick 결과 -> snapshot 직렬화 파이프라인 구현
+  - 입력: physics world frame(볼 위치/속도/스핀)
+  - 출력: 네트워크 DTO(`balls[]`, pocket/active metadata)
+  - 작업: 모델 변환기 구현, NaN/Infinity 방어, 수치 반올림 정책 고정
+  - DoD: 직렬화 결과가 JSON-safe이며 필드 누락이 없음
+  - 검증: `node --experimental-strip-types --test apps/game-server/src/game/snapshot-serializer.test.ts` (신규)
 - `ROOM-SIM-001C`: shot 종료/턴전환/득점 이벤트 브로드캐스트 연계
+  - 입력: `shot_resolved` 내부 판정, 점수/턴 정책 결과
+  - 출력: `shot_resolved`, `turn_changed`, `game_finished` 메시지 체인
+  - 작업: 이벤트 발행 순서 고정(shot_resolved -> turn_changed)
+  - DoD: 동일 샷에서 이벤트 중복 발행 0건
+  - 검증: `node --experimental-strip-types --test apps/game-server/src/game/shot-lifecycle-broadcast.test.ts` (신규)
 
 #### ROOM-INPUT-003 룸 캔버스 입력
 - `ROOM-INPUT-003A`: 조준/드래그 기반 샷 입력 UI 구성
+  - 입력: pointer 이벤트, `canvasToWorld` 변환, 현재 턴 정보
+  - 출력: `shot_submit` payload 생성(방향/dragPx/impactOffset)
+  - 작업: pointerdown/move/up 기반 드래그 거리 계산, 10~400 클램프
+  - DoD: 드래그 동작 1회로 서버 제출 1회만 발생
+  - 검증: `curl -sS http://localhost:9213/room/room-1 | rg "pointerdown|dragPx|shot_submit"`
 - `ROOM-INPUT-003B`: 샷 진행 중 중복 입력 잠금 및 사용자 피드백 추가
+  - 입력: shot state(`running`), 서버 ack/reject 응답
+  - 출력: 버튼/입력 잠금, 상태 문구(예: "샷 진행 중")
+  - 작업: submit in-flight 플래그 + timeout 복구 + 재입력 가능 시점 해제
+  - DoD: 빠른 연타 시 중복 POST/메시지 전송이 발생하지 않음
+  - 검증: `node --experimental-strip-types scripts/qa/shot-double-submit-check.ts` (신규)
 - `ROOM-INPUT-003C`: 샷 검증 실패(errorCode/errors[]) 룸 UI 통합 표시
+  - 입력: `SHOT_INPUT_SCHEMA_INVALID`, `errors[]`
+  - 출력: 사용자 메시지 + 상세 validation 리스트 영역
+  - 작업: 에러코드 매핑 재사용, 다중 에러 줄바꿈 렌더, success 시 초기화
+  - DoD: 실패 원인을 사용자가 즉시 식별 가능(코드+필드 단위)
+  - 검증: `curl -sS http://localhost:9213/room/room-1 | rg "shot-errors|SHOT_INPUT_SCHEMA_INVALID"`
 
 #### ROOM-QA-002 실시간 룸 QA
 - `ROOM-QA-002A`: 1클라 샷->정지->턴전환 스모크 자동화
+  - 입력: 게스트 로그인/방생성/입장/시작/샷 실행 자동 스크립트
+  - 출력: shot lifecycle 성공 여부 리포트
+  - 작업: `shot_started -> room_snapshot -> shot_resolved -> turn_changed` 순서 assert
+  - DoD: 10회 반복 실행 기준 flaky 0건
+  - 검증: `node --experimental-strip-types scripts/qa/room-single-client-shot.ts` (신규)
 - `ROOM-QA-002B`: 2클라 동시 시청 시 snapshot drift/역행(`seq`) 검증
+  - 입력: 두 클라이언트의 동일 `seq` 프레임 좌표 샘플
+  - 출력: drift 통계(max/avg), 역행 seq 카운트
+  - 작업: 클라A/B 수신 로그 수집, `seq` 역행 탐지, 위치 오차 계산
+  - DoD: 역행 `seq` 0건, drift max 허용치 이내(초기값: 공 반지름 1.0배)
+  - 검증: `node --experimental-strip-types scripts/qa/room-two-client-drift.ts` (신규)
 - `ROOM-QA-002C`: 스트림 끊김 시 fallback/polling 복구 검증
+  - 입력: 의도적 스트림 단절 이벤트
+  - 출력: fallback 활성화 로그, 재연결 성공 로그, 복구 시간
+  - 작업: 스트림 끊김 감지 -> polling 전환 -> 재연결 성공 시 스트림 복귀
+  - DoD: 단절 후 3초 내 UI 갱신 재개, 하드 에러/멈춤 0건
+  - 검증: `node --experimental-strip-types scripts/qa/room-stream-recovery.ts` (신규)
 
 ## 4. 추천 착수 순서 (마이크로)
 1. `INF-001A` -> `INF-001C`
