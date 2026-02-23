@@ -204,4 +204,4 @@
 | PHYS-RUNTIME-001E | Agent A | done | 2026-02-23 11:34 | `rg -n \"Number.isFinite\\(|clampNumber\\(|stepRoomPhysics\" apps/game-server/src/lobby/http.ts` 확인 | - | - | 물리 스텝 NaN/Infinity 정규화 및 경계값 방어 적용 완료 |
 | ROOM-UI-003A | Agent A | done | 2026-02-23 15:37 | `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-003B | 조준 입력 상태기계(`idle/aiming/shotPending`)와 조준 가능 조건 게이트 적용 완료 |
 | ROOM-UI-003B | Agent A | done | 2026-02-23 15:39 | `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-003C | 캔버스 큐 스틱/조준 가이드 렌더링 완료 |
-| ROOM-UI-003C | Agent A | in_progress | 2026-02-23 15:39 | - | - | - | 스트로크 거리 매핑 상수화/클램프 일원화 진행 중 |
+| ROOM-UI-003C | Agent A | done | 2026-02-23 15:40 | `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-004 | 스트로크 거리 매핑 상수화(`10~400px`)와 payload/입력 클램프 일원화 완료 |

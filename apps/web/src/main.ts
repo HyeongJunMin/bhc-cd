@@ -1486,6 +1486,12 @@ function renderRoomPage(roomId: string): string {
       return value;
     }
 
+    function normalizeStrokeDragPx(value) {
+      const finiteValue = Number.isFinite(value) ? value : MIN_STROKE_PX;
+      const roundedValue = Math.round(finiteValue);
+      return clampNumber(roundedValue, MIN_STROKE_PX, MAX_STROKE_PX);
+    }
+
     function updateShotInputsFromPointer(localX, localY) {
       const worldPoint = canvasToWorld({ x: localX, y: localY });
       const dx = worldPoint.x - cueBallAnchor.x;
@@ -1558,7 +1564,7 @@ function renderRoomPage(roomId: string): string {
           return;
         }
         const dragDistancePx = Math.hypot(localX - dragInputState.startX, localY - dragInputState.startY) / stageState.dpr;
-        const normalizedDrag = clampNumber(Math.round(dragDistancePx), 10, 400);
+        const normalizedDrag = normalizeStrokeDragPx(dragDistancePx);
         shotDrag.value = String(normalizedDrag);
         setStageMessage('캔버스 입력: 방향 ' + shotDirection.value + '도, drag ' + normalizedDrag + 'px', false);
       });
@@ -1606,6 +1612,12 @@ function renderRoomPage(roomId: string): string {
       if (!stageState.animationFrameId) {
         stageState.animationFrameId = window.requestAnimationFrame(runStageRenderLoop);
       }
+      shotDrag.min = String(MIN_STROKE_PX);
+      shotDrag.max = String(MAX_STROKE_PX);
+      shotDrag.value = String(normalizeStrokeDragPx(Number(shotDrag.value)));
+      shotDrag.addEventListener('input', () => {
+        shotDrag.value = String(normalizeStrokeDragPx(Number(shotDrag.value)));
+      });
       updateImpactIndicator();
     }
 
@@ -1931,7 +1943,7 @@ function renderRoomPage(roomId: string): string {
         clientTsMs: Date.now(),
         shotDirectionDeg: Number(shotDirection.value),
         cueElevationDeg: Number(shotElevation.value),
-        dragPx: Number(shotDrag.value),
+        dragPx: normalizeStrokeDragPx(Number(shotDrag.value)),
         impactOffsetX: Number(impactOffsetState.x.toFixed(4)),
         impactOffsetY: Number(impactOffsetState.y.toFixed(4)),
       };
