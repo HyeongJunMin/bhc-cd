@@ -1452,6 +1452,10 @@ function renderRoomPage(roomId: string): string {
         setFlowBanner('경기가 종료되었습니다. 결과를 반영합니다.', 'warn');
         loadRoom();
       });
+      roomStream.addEventListener('host_delegated', () => {
+        setRoomMessage('방장이 변경되었습니다. 권한 상태를 갱신합니다.', '');
+        loadRoom();
+      });
       roomStream.onerror = () => {
         setStageMessage('스트림 연결이 일시 중단되었습니다. 재연결을 시도합니다.', true);
       };

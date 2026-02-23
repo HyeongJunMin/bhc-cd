@@ -219,6 +219,55 @@ function scheduleDisconnectGraceTimer(state: LobbyState, roomId: string, memberI
   }, DISCONNECT_GRACE_MS);
 }
 
+function removeMemberFromRoom(
+  state: LobbyState,
+  room: LobbyRoom,
+  memberId: string,
+  mode: 'leave' | 'kick',
+): boolean {
+  const targetIndex = room.members.findIndex((member) => member.memberId === memberId);
+  if (targetIndex < 0) {
+    return false;
+  }
+
+  const wasHost = room.hostMemberId === memberId;
+  clearDisconnectGraceTimer(state, room.roomId, memberId);
+  if (mode === 'kick') {
+    room.memberGameStates[memberId] = 'KICKED';
+  } else if (room.state === 'IN_GAME') {
+    room.memberGameStates[memberId] = 'LOSE';
+  } else {
+    delete room.memberGameStates[memberId];
+  }
+  room.members.splice(targetIndex, 1);
+  room.playerCount = room.members.length;
+  delete room.scoreBoard[memberId];
+  if (wasHost) {
+    const previousHostMemberId = room.hostMemberId;
+    room.hostMemberId = room.members[0]?.memberId ?? null;
+    if (room.hostMemberId && room.hostMemberId !== previousHostMemberId) {
+      broadcastRoomEvent(state, room.roomId, 'host_delegated', {
+        roomId: room.roomId,
+        previousHostMemberId,
+        nextHostMemberId: room.hostMemberId,
+        serverTimeMs: Date.now(),
+      });
+    }
+  }
+
+  if (room.members.length === 0) {
+    room.currentTurnIndex = 0;
+    room.turnDeadlineMs = null;
+  } else {
+    room.currentTurnIndex = Math.min(room.currentTurnIndex, room.members.length - 1);
+    if (room.state === 'IN_GAME') {
+      room.turnDeadlineMs = Date.now() + TURN_DURATION_MS;
+    }
+  }
+  settleSingleSurvivorWin(state, room);
+  return true;
+}
+
 function writeJson(res: ServerResponse, statusCode: number, payload: unknown): void {
   res.statusCode = statusCode;
   res.setHeader('content-type', 'application/json; charset=utf-8');
@@ -439,19 +488,7 @@ export function kickRoomMember(
     return { ok: false, statusCode: 404, errorCode: 'ROOM_MEMBER_NOT_FOUND' };
   }
 
-  room.members.splice(targetIndex, 1);
-  room.playerCount = room.members.length;
-  delete room.scoreBoard[targetMemberId];
-  room.memberGameStates[targetMemberId] = 'KICKED';
-  if (room.members.length === 0) {
-    room.currentTurnIndex = 0;
-    room.turnDeadlineMs = null;
-  } else {
-    room.currentTurnIndex = Math.min(room.currentTurnIndex, room.members.length - 1);
-    if (room.state === 'IN_GAME') {
-      room.turnDeadlineMs = Date.now() + TURN_DURATION_MS;
-    }
-  }
+  removeMemberFromRoom(state, room, targetMemberId, 'kick');
   return { ok: true, room };
 }
 
@@ -466,30 +503,7 @@ export function leaveRoomMember(state: LobbyState, roomId: string, actorMemberId
     return { ok: false, statusCode: 404, errorCode: 'ROOM_MEMBER_NOT_FOUND' };
   }
 
-  const wasHost = room.hostMemberId === actorMemberId;
-  clearDisconnectGraceTimer(state, roomId, actorMemberId);
-  if (room.state === 'IN_GAME') {
-    room.memberGameStates[actorMemberId] = 'LOSE';
-  } else {
-    delete room.memberGameStates[actorMemberId];
-  }
-  room.members.splice(targetIndex, 1);
-  room.playerCount = room.members.length;
-  delete room.scoreBoard[actorMemberId];
-  if (wasHost) {
-    room.hostMemberId = room.members[0]?.memberId ?? null;
-  }
-
-  if (room.members.length === 0) {
-    room.currentTurnIndex = 0;
-    room.turnDeadlineMs = null;
-  } else {
-    room.currentTurnIndex = Math.min(room.currentTurnIndex, room.members.length - 1);
-    if (room.state === 'IN_GAME') {
-      room.turnDeadlineMs = Date.now() + TURN_DURATION_MS;
-    }
-  }
-  settleSingleSurvivorWin(state, room);
+  removeMemberFromRoom(state, room, actorMemberId, 'leave');
   return { ok: true, room };
 }
 

@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 176 |
-| Todo | 15 |
+| Todo | 12 |
 | In Progress | 0 |
-| Done | 161 |
+| Done | 164 |
 | Blocked | 0 |
-| Last Updated | 2026-02-23 11:25 |
+| Last Updated | 2026-02-23 11:26 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | LEAVE-001D | done | 2026-02-23 11:25 | 유예 중 재접속 시 disconnect 타이머 해제 검증 완료 |
+| Agent A (web) | HOST-DELEGATE-001C | done | 2026-02-23 11:26 | host 이탈 공통 제거 경로 + delegated 이벤트/UI 반영 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -186,9 +186,9 @@
 | LEAVE-001B | Agent A | done | 2026-02-23 11:24 | `rg -n \"DISCONNECT_GRACE_MS|scheduleDisconnectGraceTimer|disconnectGraceTimers\" apps/game-server/src/lobby/http.ts` 확인 | - | LEAVE-001C | disconnect 10초 유예 타이머 구현 완료 |
 | LEAVE-001C | Agent A | done | 2026-02-23 11:24 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(22 pass) | - | LEAVE-001D | 미복귀 LOSE 확정/멤버 제거 및 1인 생존 승리 종료 반영 완료 |
 | LEAVE-001D | Agent A | done | 2026-02-23 11:25 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(23 pass) | - | HOST-DELEGATE-001A | 유예 중 재접속 시 disconnect 타이머 해제 테스트 추가 완료 |
-| HOST-DELEGATE-001A | Agent A | todo | 2026-02-23 11:03 | - | - | HOST-DELEGATE-001B | kick/leave/disconnect 제거 경로 공통화 예정 |
-| HOST-DELEGATE-001B | Agent A | todo | 2026-02-23 11:03 | - | - | HOST-DELEGATE-001C | host 이탈 자동 위임 실경로 연동 예정 |
-| HOST-DELEGATE-001C | Agent A | todo | 2026-02-23 11:03 | - | - | CHAT-RL-001A | 위임 이벤트 수신 기반 권한 UI 갱신 예정 |
+| HOST-DELEGATE-001A | Agent A | done | 2026-02-23 11:26 | `rg -n \"removeMemberFromRoom|leaveRoomMember|kickRoomMember\" apps/game-server/src/lobby/http.ts` 확인 | - | HOST-DELEGATE-001B | kick/leave/disconnect 제거 경로 공통화 완료 |
+| HOST-DELEGATE-001B | Agent A | done | 2026-02-23 11:26 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(24 pass) | - | HOST-DELEGATE-001C | host 이탈 자동 위임 실경로 연동 완료 |
+| HOST-DELEGATE-001C | Agent A | done | 2026-02-23 11:26 | `rg -n \"host_delegated|방장이 변경되었습니다\" apps/game-server/src/lobby/http.ts apps/web/src/main.ts` 확인 | - | CHAT-RL-001A | host 위임 이벤트 발행 및 UI 갱신 연동 완료 |
 | CHAT-RL-001A | Agent A | done | 2026-02-23 11:03 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(19 pass) | - | CHAT-RL-001B | room chat API에 3초 레이트리밋 연결 및 429/retryAfterMs 테스트 추가 완료 |
 | CHAT-RL-001B | Agent A | todo | 2026-02-23 11:03 | - | - | CHAT-RL-001C | `CHAT_RATE_LIMITED`/`retryAfterMs` 응답 계약 고정 및 검증 예정 |
 | CHAT-RL-001C | Agent A | done | 2026-02-23 11:06 | `rg -n \"CHAT_RATE_LIMITED|getChatErrorMessage|retryAfterMs\" apps/web/src/main.ts` 확인 | - | CHAT-RL-001D | room UI 잔여 대기시간 메시지 반영 완료 |

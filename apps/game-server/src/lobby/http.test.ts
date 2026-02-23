@@ -164,6 +164,37 @@ test('나가기: 멤버가 leave를 호출하면 룸에서 제거되고 host가 
   }
 });
 
+test('방장 나가기: host_delegated 이벤트가 발행되고 다음 멤버가 host가 된다', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'host-delegate' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  joinRoom(state, created.room.roomId, { memberId: 'u2', displayName: 'guest-1' });
+
+  const writes: string[] = [];
+  const fakeSubscriber = {
+    writableEnded: false,
+    destroyed: false,
+    write(chunk: string) {
+      writes.push(chunk);
+      return true;
+    },
+  } as unknown as import('node:http').ServerResponse;
+  state.roomStreamSubscribers[created.room.roomId].add(fakeSubscriber);
+
+  const left = leaveRoomMember(state, created.room.roomId, 'u1');
+  assert.equal(left.ok, true);
+  if (left.ok) {
+    assert.equal(left.room.hostMemberId, 'u2');
+  }
+  const output = writes.join('');
+  assert.ok(output.includes('event: host_delegated'));
+  assert.ok(output.includes('"nextHostMemberId":"u2"'));
+});
+
 test('재경기: 방장이고 2인 이상이면 IN_GAME으로 전환된다', () => {
   const { state } = createLobbyHttpServer();
   const created = createRoom(state, { title: 'rematch-room' });
