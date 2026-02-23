@@ -208,9 +208,9 @@
 | ROOM-UI-004A | Agent A | done | 2026-02-23 15:47 | `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-004B | 큐볼 기준 Ray-쿠션 1차 교차 계산 유틸 적용 완료 |
 | ROOM-UI-004B | Agent A | done | 2026-02-23 15:49 | `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-004C | 목적구 1차 충돌 후보 계산 및 최단 충돌 선택 완료 |
 | ROOM-UI-004C | Agent A | done | 2026-02-23 15:50 | `pnpm --filter @bhc/web run lint` 통과 | - | PHYS-COLL-001A | aiming 상태 예측선/충돌점 마커 렌더 및 숨김 조건 적용 완료 |
-| PHYS-COLL-001A | Agent A | in_progress | 2026-02-23 15:50 | - | - | PHYS-COLL-001B | 공-공 충돌 쌍 검사 진행 중 |
-| PHYS-COLL-001B | Agent A | todo | 2026-02-23 15:45 | - | - | PHYS-COLL-001C | 탄성 충돌 임펄스 적용 대기 |
-| PHYS-COLL-001C | Agent A | todo | 2026-02-23 15:45 | - | - | PHYS-COLL-001D | 겹침 보정/안정화 대기 |
-| PHYS-COLL-001D | Agent A | todo | 2026-02-23 15:45 | - | - | PHYS-COLL-TEST-001A | 물리 substep 적용 대기 |
-| PHYS-COLL-TEST-001A | Agent A | todo | 2026-02-23 15:45 | - | - | PHYS-COLL-TEST-001B | 정면 충돌 테스트 대기 |
+| PHYS-COLL-001A | Agent A | done | 2026-02-23 15:58 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | PHYS-COLL-001B | 공-공 충돌 쌍 검사(O(n^2)) 구현 완료 |
+| PHYS-COLL-001B | Agent A | done | 2026-02-23 15:58 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | PHYS-COLL-001C | 탄성 충돌 임펄스(`e_bb=0.95`) 적용 완료 |
+| PHYS-COLL-001C | Agent A | done | 2026-02-23 15:58 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | PHYS-COLL-001D | 겹침 보정(positional correction)/속도 상한/NaN 가드 적용 완료 |
+| PHYS-COLL-001D | Agent A | done | 2026-02-23 15:58 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | PHYS-COLL-TEST-001A | shot 타이머 물리 substep 적용 + stream heartbeat 이중 스텝 제거 완료 |
+| PHYS-COLL-TEST-001A | Agent A | in_progress | 2026-02-23 15:58 | - | - | PHYS-COLL-TEST-001B | 정면 충돌 전달 테스트 작성 진행 중 |
 | PHYS-COLL-TEST-001B | Agent A | todo | 2026-02-23 15:45 | - | - | - | 비충돌/겹침 보정 회귀 테스트 대기 |

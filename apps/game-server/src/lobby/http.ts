@@ -19,6 +19,10 @@ const TABLE_WIDTH_M = 2.84;
 const TABLE_HEIGHT_M = 1.42;
 const BALL_RADIUS_M = 0.0615 / 2;
 const PHYSICS_DT_SEC = ROOM_SNAPSHOT_BROADCAST_INTERVAL_MS / 1000;
+const PHYSICS_SUBSTEPS = 4;
+const BALL_BALL_RESTITUTION = 0.95;
+const CUSHION_RESTITUTION = 0.82;
+const MAX_BALL_SPEED_MPS = 30;
 
 type LobbyRoom = {
   roomId: string;
@@ -207,38 +211,103 @@ function applyShotToRoomBalls(room: LobbyRoom, payload: Record<string, unknown>)
 }
 
 function stepRoomPhysics(room: LobbyRoom): void {
-  for (const ball of room.balls) {
-    if (ball.isPocketed) {
+  const substepDtSec = PHYSICS_DT_SEC / PHYSICS_SUBSTEPS;
+  const linearDamping = Math.pow(0.985, 1 / PHYSICS_SUBSTEPS);
+  const spinDamping = Math.pow(0.97, 1 / PHYSICS_SUBSTEPS);
+  for (let step = 0; step < PHYSICS_SUBSTEPS; step += 1) {
+    for (const ball of room.balls) {
+      if (ball.isPocketed) {
+        continue;
+      }
+      ball.x += ball.vx * substepDtSec;
+      ball.y += ball.vy * substepDtSec;
+
+      if (ball.x <= BALL_RADIUS_M || ball.x >= TABLE_WIDTH_M - BALL_RADIUS_M) {
+        ball.x = clampNumber(ball.x, BALL_RADIUS_M, TABLE_WIDTH_M - BALL_RADIUS_M);
+        ball.vx *= -CUSHION_RESTITUTION;
+      }
+      if (ball.y <= BALL_RADIUS_M || ball.y >= TABLE_HEIGHT_M - BALL_RADIUS_M) {
+        ball.y = clampNumber(ball.y, BALL_RADIUS_M, TABLE_HEIGHT_M - BALL_RADIUS_M);
+        ball.vy *= -CUSHION_RESTITUTION;
+      }
+    }
+
+    resolveBallBallCollisions(room.balls);
+
+    for (const ball of room.balls) {
+      if (ball.isPocketed) {
+        continue;
+      }
+      ball.vx *= linearDamping;
+      ball.vy *= linearDamping;
+      ball.spinX *= spinDamping;
+      ball.spinY *= spinDamping;
+      ball.spinZ *= spinDamping;
+      if (Math.hypot(ball.vx, ball.vy) < 0.02) {
+        ball.vx = 0;
+        ball.vy = 0;
+      }
+      const speed = Math.hypot(ball.vx, ball.vy);
+      if (speed > MAX_BALL_SPEED_MPS) {
+        const ratio = MAX_BALL_SPEED_MPS / speed;
+        ball.vx *= ratio;
+        ball.vy *= ratio;
+      }
+      ball.x = clampNumber(ball.x, BALL_RADIUS_M, TABLE_WIDTH_M - BALL_RADIUS_M);
+      ball.y = clampNumber(ball.y, BALL_RADIUS_M, TABLE_HEIGHT_M - BALL_RADIUS_M);
+      ball.vx = Number.isFinite(ball.vx) ? ball.vx : 0;
+      ball.vy = Number.isFinite(ball.vy) ? ball.vy : 0;
+      ball.spinX = Number.isFinite(ball.spinX) ? ball.spinX : 0;
+      ball.spinY = Number.isFinite(ball.spinY) ? ball.spinY : 0;
+      ball.spinZ = Number.isFinite(ball.spinZ) ? ball.spinZ : 0;
+    }
+  }
+}
+
+function resolveBallBallCollisions(balls: SnapshotBallFrame[]): void {
+  const minDistance = BALL_RADIUS_M * 2;
+  const minDistanceSq = minDistance * minDistance;
+  const epsilon = 1e-8;
+  for (let i = 0; i < balls.length; i += 1) {
+    const first = balls[i];
+    if (!first || first.isPocketed) {
       continue;
     }
-    ball.x += ball.vx * PHYSICS_DT_SEC;
-    ball.y += ball.vy * PHYSICS_DT_SEC;
+    for (let j = i + 1; j < balls.length; j += 1) {
+      const second = balls[j];
+      if (!second || second.isPocketed) {
+        continue;
+      }
+      const deltaX = second.x - first.x;
+      const deltaY = second.y - first.y;
+      const distanceSq = deltaX * deltaX + deltaY * deltaY;
+      if (!Number.isFinite(distanceSq) || distanceSq > minDistanceSq) {
+        continue;
+      }
+      const distance = Math.sqrt(Math.max(distanceSq, epsilon));
+      const normalX = distance > epsilon ? deltaX / distance : 1;
+      const normalY = distance > epsilon ? deltaY / distance : 0;
 
-    if (ball.x <= BALL_RADIUS_M || ball.x >= TABLE_WIDTH_M - BALL_RADIUS_M) {
-      ball.x = clampNumber(ball.x, BALL_RADIUS_M, TABLE_WIDTH_M - BALL_RADIUS_M);
-      ball.vx *= -0.82;
-    }
-    if (ball.y <= BALL_RADIUS_M || ball.y >= TABLE_HEIGHT_M - BALL_RADIUS_M) {
-      ball.y = clampNumber(ball.y, BALL_RADIUS_M, TABLE_HEIGHT_M - BALL_RADIUS_M);
-      ball.vy *= -0.82;
-    }
+      const relativeVx = second.vx - first.vx;
+      const relativeVy = second.vy - first.vy;
+      const velocityAlongNormal = relativeVx * normalX + relativeVy * normalY;
+      if (velocityAlongNormal < 0) {
+        const impulse = -((1 + BALL_BALL_RESTITUTION) * velocityAlongNormal) / 2;
+        first.vx -= impulse * normalX;
+        first.vy -= impulse * normalY;
+        second.vx += impulse * normalX;
+        second.vy += impulse * normalY;
+      }
 
-    ball.vx *= 0.985;
-    ball.vy *= 0.985;
-    ball.spinX *= 0.97;
-    ball.spinY *= 0.97;
-    ball.spinZ *= 0.97;
-    if (Math.hypot(ball.vx, ball.vy) < 0.02) {
-      ball.vx = 0;
-      ball.vy = 0;
+      const penetration = minDistance - distance;
+      if (penetration > 0) {
+        const correction = ((penetration - 1e-4 > 0 ? penetration - 1e-4 : 0) / 2) * 0.8;
+        first.x -= normalX * correction;
+        first.y -= normalY * correction;
+        second.x += normalX * correction;
+        second.y += normalY * correction;
+      }
     }
-    ball.x = clampNumber(ball.x, BALL_RADIUS_M, TABLE_WIDTH_M - BALL_RADIUS_M);
-    ball.y = clampNumber(ball.y, BALL_RADIUS_M, TABLE_HEIGHT_M - BALL_RADIUS_M);
-    ball.vx = Number.isFinite(ball.vx) ? ball.vx : 0;
-    ball.vy = Number.isFinite(ball.vy) ? ball.vy : 0;
-    ball.spinX = Number.isFinite(ball.spinX) ? ball.spinX : 0;
-    ball.spinY = Number.isFinite(ball.spinY) ? ball.spinY : 0;
-    ball.spinZ = Number.isFinite(ball.spinZ) ? ball.spinZ : 0;
   }
 }
 
@@ -873,6 +942,7 @@ export function submitRoomShot(state: LobbyState, roomId: string, actorMemberId:
   }
   const startedAtMs = Date.now();
   state.shotStateResetTimers[room.roomId] = setInterval(() => {
+    stepRoomPhysics(room);
     if (areRoomBallsSettled(room) || Date.now() - startedAtMs >= SHOT_RESOLUTION_FALLBACK_MS) {
       const timer = state.shotStateResetTimers[room.roomId];
       if (timer) {
@@ -1005,7 +1075,6 @@ function handleRoomSnapshotStream(req: IncomingMessage, res: ServerResponse, sta
     if (res.writableEnded) {
       return;
     }
-    stepRoomPhysics(opened.room);
     const heartbeatSnapshot = buildRoomSnapshot(state, opened.room);
     broadcastRoomEvent(state, roomId, 'room_snapshot', heartbeatSnapshot);
   }, ROOM_SNAPSHOT_BROADCAST_INTERVAL_MS);
