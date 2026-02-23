@@ -8,6 +8,7 @@ import {
   joinRoom,
   kickRoomMember,
   listRooms,
+  openRoomSnapshotStream,
   rematchRoomGame,
   sendRoomChatMessage,
   submitRoomShot,
@@ -220,5 +221,40 @@ test('샷 입력 제출: 스키마 위반 payload면 SHOT_INPUT_SCHEMA_INVALID',
   assert.equal(result.ok, false);
   if (!result.ok) {
     assert.equal(result.errorCode, 'SHOT_INPUT_SCHEMA_INVALID');
+  }
+});
+
+test('룸 스트림 오픈: 룸 멤버면 snapshot을 반환한다', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'stream-room' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  const opened = openRoomSnapshotStream(state, created.room.roomId, 'u1');
+  assert.equal(opened.ok, true);
+  if (opened.ok) {
+    assert.equal(opened.snapshot.roomId, created.room.roomId);
+    assert.equal(opened.snapshot.balls.length, 3);
+    assert.ok(opened.snapshot.seq >= 1);
+  }
+});
+
+test('룸 스트림 오픈: 비멤버는 ROOM_STREAM_FORBIDDEN(403)', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'stream-deny' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  const opened = openRoomSnapshotStream(state, created.room.roomId, 'u2');
+  assert.equal(opened.ok, false);
+  if (!opened.ok) {
+    assert.equal(opened.statusCode, 403);
+    assert.equal(opened.errorCode, 'ROOM_STREAM_FORBIDDEN');
   }
 });

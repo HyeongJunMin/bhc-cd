@@ -29,6 +29,7 @@ type LobbyRoom = {
 type LobbyState = {
   nextRoomId: number;
   rooms: LobbyRoom[];
+  roomStreamSeqByRoomId: Record<string, number>;
 };
 
 type CreateRoomResult =
@@ -59,6 +60,30 @@ type RoomChatResult =
 type ShotSubmitResult =
   | { ok: true; payload: Record<string, unknown> }
   | { ok: false; statusCode: 400 | 404; errorCode: 'ROOM_NOT_FOUND' | 'ROOM_MEMBER_NOT_FOUND' | 'SHOT_INPUT_SCHEMA_INVALID'; errors?: string[] };
+type RoomStreamOpenResult =
+  | {
+      ok: true;
+      room: LobbyRoom;
+      snapshot: {
+        roomId: string;
+        seq: number;
+        serverTimeMs: number;
+        state: LobbyRoom['state'];
+        turn: { currentMemberId: string | null };
+        balls: Array<{
+          id: 'cueBall' | 'objectBall1' | 'objectBall2';
+          x: number;
+          y: number;
+          vx: number;
+          vy: number;
+          spinX: number;
+          spinY: number;
+          spinZ: number;
+          isPocketed: boolean;
+        }>;
+      };
+    }
+  | { ok: false; statusCode: 400 | 403 | 404; errorCode: 'ROOM_NOT_FOUND' | 'ROOM_MEMBER_ID_REQUIRED' | 'ROOM_STREAM_FORBIDDEN' };
 
 type ListRoomsResult = {
   items: LobbyRoom[];
@@ -113,6 +138,7 @@ export function createRoom(state: LobbyState, input: { title: unknown }): Create
 
   state.nextRoomId += 1;
   state.rooms.push(room);
+  state.roomStreamSeqByRoomId[room.roomId] = 0;
 
   return { ok: true, room };
 }
@@ -481,6 +507,90 @@ export function getRoomDetail(state: LobbyState, roomId: string): RoomDetailResu
   return { ok: true, room };
 }
 
+function nextRoomSnapshotSeq(state: LobbyState, roomId: string): number {
+  const previous = state.roomStreamSeqByRoomId[roomId] ?? 0;
+  const next = previous + 1;
+  state.roomStreamSeqByRoomId[roomId] = next;
+  return next;
+}
+
+function buildRoomSnapshot(state: LobbyState, room: LobbyRoom) {
+  return {
+    roomId: room.roomId,
+    seq: nextRoomSnapshotSeq(state, room.roomId),
+    serverTimeMs: Date.now(),
+    state: room.state,
+    turn: { currentMemberId: room.members[0]?.memberId ?? null },
+    balls: [
+      { id: 'cueBall' as const, x: 0.70, y: 0.71, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
+      { id: 'objectBall1' as const, x: 2.10, y: 0.62, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
+      { id: 'objectBall2' as const, x: 2.24, y: 0.80, vx: 0, vy: 0, spinX: 0, spinY: 0, spinZ: 0, isPocketed: false },
+    ],
+  };
+}
+
+export function openRoomSnapshotStream(state: LobbyState, roomId: string, memberIdRaw: string): RoomStreamOpenResult {
+  const room = state.rooms.find((item) => item.roomId === roomId);
+  if (!room) {
+    return { ok: false, statusCode: 404, errorCode: 'ROOM_NOT_FOUND' };
+  }
+
+  const memberId = memberIdRaw.trim();
+  if (memberId.length === 0) {
+    return { ok: false, statusCode: 400, errorCode: 'ROOM_MEMBER_ID_REQUIRED' };
+  }
+
+  const isMember = room.members.some((member) => member.memberId === memberId);
+  if (!isMember) {
+    return { ok: false, statusCode: 403, errorCode: 'ROOM_STREAM_FORBIDDEN' };
+  }
+
+  return {
+    ok: true,
+    room,
+    snapshot: buildRoomSnapshot(state, room),
+  };
+}
+
+function handleRoomSnapshotStream(req: IncomingMessage, res: ServerResponse, state: LobbyState): void {
+  const url = new URL(req.url ?? '/lobby/rooms', 'http://localhost');
+  const match = url.pathname.match(/^\/lobby\/rooms\/([^/?#]+)\/stream$/);
+  const roomId = match?.[1];
+  if (!roomId) {
+    writeJson(res, 404, { errorCode: 'ROOM_NOT_FOUND' });
+    return;
+  }
+
+  const memberId = url.searchParams.get('memberId') ?? '';
+  const opened = openRoomSnapshotStream(state, roomId, memberId);
+  if (!opened.ok) {
+    writeJson(res, opened.statusCode, { errorCode: opened.errorCode });
+    return;
+  }
+
+  res.statusCode = 200;
+  res.setHeader('content-type', 'text/event-stream; charset=utf-8');
+  res.setHeader('cache-control', 'no-cache, no-transform');
+  res.setHeader('connection', 'keep-alive');
+  res.write(`event: room_snapshot\n`);
+  res.write(`data: ${JSON.stringify(opened.snapshot)}\n\n`);
+
+  const heartbeat = setInterval(() => {
+    if (res.writableEnded) {
+      return;
+    }
+    const heartbeatSnapshot = buildRoomSnapshot(state, opened.room);
+    res.write(`event: room_snapshot\n`);
+    res.write(`data: ${JSON.stringify(heartbeatSnapshot)}\n\n`);
+  }, 1000);
+
+  const cleanup = () => {
+    clearInterval(heartbeat);
+  };
+  req.on('close', cleanup);
+  res.on('close', cleanup);
+}
+
 function handleGetRoomDetail(req: IncomingMessage, res: ServerResponse, state: LobbyState): void {
   const match = req.url?.match(/^\/lobby\/rooms\/([^/?#]+)$/);
   const roomId = match?.[1];
@@ -502,9 +612,15 @@ export function createLobbyHttpServer() {
   const state: LobbyState = {
     nextRoomId: 1,
     rooms: [],
+    roomStreamSeqByRoomId: {},
   };
 
   const server = createServer(async (req, res) => {
+    if (req.method === 'GET' && req.url?.startsWith('/lobby/rooms/') && req.url.includes('/stream')) {
+      handleRoomSnapshotStream(req, res, state);
+      return;
+    }
+
     if (req.method === 'GET' && req.url?.startsWith('/lobby/rooms/') && req.url.endsWith('/chat')) {
       handleGetRoomChat(req, res, state);
       return;
