@@ -202,3 +202,6 @@
 | PHYS-RUNTIME-001C | Agent A | done | 2026-02-23 11:32 | `rg -n \"stepRoomPhysics|ROOM_SNAPSHOT_BROADCAST_INTERVAL_MS|buildRoomSnapshot\" apps/game-server/src/lobby/http.ts` 확인 | - | PHYS-RUNTIME-001D | 20Hz tick/snapshot/SSE 연동 완료 |
 | PHYS-RUNTIME-001D | Agent A | done | 2026-02-23 11:34 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(26 pass) | - | PHYS-RUNTIME-001E | 정지판정(or fallback) 기반 샷 종료 -> 점수/턴/종료 이벤트 연계 완료 |
 | PHYS-RUNTIME-001E | Agent A | done | 2026-02-23 11:34 | `rg -n \"Number.isFinite\\(|clampNumber\\(|stepRoomPhysics\" apps/game-server/src/lobby/http.ts` 확인 | - | - | 물리 스텝 NaN/Infinity 정규화 및 경계값 방어 적용 완료 |
+| ROOM-UI-003A | Agent A | done | 2026-02-23 15:37 | `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-003B | 조준 입력 상태기계(`idle/aiming/shotPending`)와 조준 가능 조건 게이트 적용 완료 |
+| ROOM-UI-003B | Agent A | in_progress | 2026-02-23 15:37 | - | - | ROOM-UI-003C | 캔버스 큐 스틱 렌더링 진행 중 |
+| ROOM-UI-003C | Agent A | todo | 2026-02-23 12:00 | - | - | - | 스트로크 거리 매핑 상수화/클램프 일원화 대기 |

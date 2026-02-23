@@ -453,3 +453,10 @@
 - `PHYS-RUNTIME-001C`: 20Hz tick -> snapshot serialize -> SSE broadcast
 - `PHYS-RUNTIME-001D`: 정지 판정 -> 점수/턴 전환/종료 이벤트 연계
 - `PHYS-RUNTIME-001E`: drift/역행/NaN 방어 soak 테스트
+
+### Phase P. Room 조준 UX 고도화 (2026-02-23)
+
+#### ROOM-UI-003 큐/조준 입력 안정화
+- `ROOM-UI-003A`: 조준 입력 상태기계(`idle/aiming/shotPending`) 도입 및 턴/상태 기반 조준 가능 조건 게이트 적용
+- `ROOM-UI-003B`: 캔버스 큐 스틱 렌더링(내 턴 + aiming 상태에서만 표시)
+- `ROOM-UI-003C`: 스트로크 거리 매핑 상수화(`min=10px`, `max=400px`) 및 드래그 파워 클램프 일원화

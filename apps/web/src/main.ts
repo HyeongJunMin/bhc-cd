@@ -1004,7 +1004,15 @@ function renderRoomPage(roomId: string): string {
     const cueBallRadiusM = 0.0615 / 2;
     const impactOffsetLimitR = 0.9;
     const impactOffsetStepR = 0.05;
+    const MIN_STROKE_PX = 10;
+    const MAX_STROKE_PX = 400;
     const impactOffsetState = { x: 0, y: 0 };
+    const aimInputState = {
+      mode: 'idle',
+      pointerId: -1,
+      startX: 0,
+      startY: 0,
+    };
     const dragInputState = {
       active: false,
       pointerId: -1,
@@ -1129,6 +1137,23 @@ function renderRoomPage(roomId: string): string {
       const submitButton = shotForm.querySelector('button[type="submit"]');
       if (submitButton) {
         submitButton.disabled = disabled;
+      }
+    }
+
+    function canStartAiming() {
+      return !shotSubmitInFlight
+        && !shotInputLocked
+        && currentRoomState === 'IN_GAME'
+        && Boolean(myMemberId)
+        && Boolean(currentTurnMemberId)
+        && String(currentTurnMemberId) === String(myMemberId);
+    }
+
+    function setAimMode(nextMode) {
+      aimInputState.mode = nextMode;
+      if (roomStage instanceof HTMLCanvasElement) {
+        roomStage.dataset.aimMode = nextMode;
+        roomStage.style.cursor = nextMode === 'aiming' ? 'grabbing' : 'pointer';
       }
     }
 
@@ -1275,6 +1300,26 @@ function renderRoomPage(roomId: string): string {
       };
     }
 
+    function normalizeStageBall(ball) {
+      if (!ball || typeof ball !== 'object') {
+        return null;
+      }
+      const id = typeof ball.id === 'string' ? ball.id : '';
+      const fallbackById = {
+        cueBall: { radiusM: 0.03075, color: '#f8fafc' },
+        objectBall1: { radiusM: 0.03075, color: '#facc15' },
+        objectBall2: { radiusM: 0.03075, color: '#ef4444' },
+      };
+      const fallback = fallbackById[id] || { radiusM: 0.03075, color: '#e5e7eb' };
+      return {
+        id,
+        x: Number.isFinite(ball.x) ? ball.x : 0,
+        y: Number.isFinite(ball.y) ? ball.y : 0,
+        radiusM: Number.isFinite(ball.radiusM) && ball.radiusM > 0 ? ball.radiusM : fallback.radiusM,
+        color: typeof ball.color === 'string' && ball.color.length > 0 ? ball.color : fallback.color,
+      };
+    }
+
     function pushStageSnapshot(snapshot) {
       if (!snapshot || !Array.isArray(snapshot.balls)) {
         return;
@@ -1282,8 +1327,18 @@ function renderRoomPage(roomId: string): string {
       if (typeof snapshot.seq === 'number' && snapshot.seq <= stageState.lastSnapshotSeq) {
         return;
       }
+      const normalizedBalls = snapshot.balls
+        .map((ball) => normalizeStageBall(ball))
+        .filter((ball) => ball !== null);
+      if (normalizedBalls.length === 0) {
+        return;
+      }
       stageState.lastSnapshotSeq = typeof snapshot.seq === 'number' ? snapshot.seq : stageState.lastSnapshotSeq + 1;
-      stageState.snapshotBuffer.push(snapshot);
+      stageState.snapshotBuffer.push({
+        seq: typeof snapshot.seq === 'number' ? snapshot.seq : stageState.lastSnapshotSeq,
+        serverTimeMs: Number.isFinite(snapshot.serverTimeMs) ? snapshot.serverTimeMs : Date.now(),
+        balls: normalizedBalls,
+      });
       if (stageState.snapshotBuffer.length > 6) {
         stageState.snapshotBuffer.shift();
       }
@@ -1400,11 +1455,20 @@ function renderRoomPage(roomId: string): string {
         renderStageFrame();
       });
       roomStage.addEventListener('pointerdown', (event) => {
+        if (!canStartAiming()) {
+          setAimMode('idle');
+          setStageMessage('현재는 조준할 수 없습니다. 내 턴에만 조준이 가능합니다.', true);
+          return;
+        }
         const bounds = roomStage.getBoundingClientRect();
+        setAimMode('aiming');
+        aimInputState.pointerId = event.pointerId;
+        aimInputState.startX = (event.clientX - bounds.left) * stageState.dpr;
+        aimInputState.startY = (event.clientY - bounds.top) * stageState.dpr;
         dragInputState.active = true;
         dragInputState.pointerId = event.pointerId;
-        dragInputState.startX = (event.clientX - bounds.left) * stageState.dpr;
-        dragInputState.startY = (event.clientY - bounds.top) * stageState.dpr;
+        dragInputState.startX = aimInputState.startX;
+        dragInputState.startY = aimInputState.startY;
         updateShotInputsFromPointer(dragInputState.startX, dragInputState.startY);
         roomStage.setPointerCapture(event.pointerId);
       });
@@ -1441,14 +1505,19 @@ function renderRoomPage(roomId: string): string {
           return;
         }
         dragInputState.active = false;
+        setAimMode('shotPending');
         roomStage.releasePointerCapture(event.pointerId);
-        await submitShotInput('canvas-drag');
+        const submitted = await submitShotInput('canvas-drag');
+        if (!submitted) {
+          setAimMode('idle');
+        }
       });
       roomStage.addEventListener('pointercancel', (event) => {
         if (!dragInputState.active || dragInputState.pointerId !== event.pointerId) {
           return;
         }
         dragInputState.active = false;
+        setAimMode('idle');
         roomStage.releasePointerCapture(event.pointerId);
         setStageMessage('캔버스 입력이 취소되었습니다.', true);
       });
@@ -1509,6 +1578,7 @@ function renderRoomPage(roomId: string): string {
         }
       });
       roomStream.addEventListener('shot_started', () => {
+        setAimMode('shotPending');
         shotInputLocked = true;
         updateShotInputLockUi();
         setShotMessage('샷 진행 중입니다. 다음 입력은 턴 전환 후 가능합니다.', '');
@@ -1517,12 +1587,14 @@ function renderRoomPage(roomId: string): string {
         setShotMessage('샷이 종료되었습니다. 턴 전환을 기다리는 중입니다.', '');
       });
       roomStream.addEventListener('turn_changed', () => {
+        setAimMode('idle');
         shotInputLocked = false;
         updateShotInputLockUi();
         setShotMessage('턴이 전환되었습니다. 샷 입력 잠금이 해제되었습니다.', '');
         loadRoom();
       });
       roomStream.addEventListener('game_finished', () => {
+        setAimMode('idle');
         shotInputLocked = true;
         updateShotInputLockUi();
         setFlowBanner('경기가 종료되었습니다. 결과를 반영합니다.', 'warn');
@@ -1658,6 +1730,9 @@ function renderRoomPage(roomId: string): string {
         || !currentTurnMemberId
         || String(currentTurnMemberId) !== String(myMemberId);
       updateShotInputLockUi();
+      if (shotInputLocked && aimInputState.mode !== 'shotPending') {
+        setAimMode('idle');
+      }
 
       if (!amIMember && myMemberId) {
         setFlowBanner('방에서 제외되었습니다. 로비로 이동합니다.', 'warn');
@@ -1799,6 +1874,7 @@ function renderRoomPage(roomId: string): string {
           return false;
         }
         shotInputLocked = true;
+        setAimMode('shotPending');
         updateShotInputLockUi();
         setShotMessage('샷 입력이 서버에 접수되었습니다. (' + source + ')', '');
         return true;
