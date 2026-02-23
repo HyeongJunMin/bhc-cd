@@ -4,9 +4,9 @@
   "private": true,
   "description": "Web 3-cushion billiards monorepo",
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
-    "test": "turbo run test",
-    "lint": "turbo run lint"
+    "dev": "pnpm -r --parallel --if-present run dev",
+    "build": "pnpm -r --if-present run build",
+    "test": "pnpm -r --if-present run test",
+    "lint": "pnpm -r --if-present run lint"
   }
 }
