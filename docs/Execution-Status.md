@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 144 |
-| Todo | 6 |
+| Todo | 5 |
 | In Progress | 0 |
-| Done | 138 |
+| Done | 139 |
 | Blocked | 0 |
-| Last Updated | 2026-02-23 10:41 |
+| Last Updated | 2026-02-23 10:43 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | ROOM-SIM-001C | done | 2026-02-23 10:41 | shot 종료/턴전환 이벤트 브로드캐스트 연계 완료 |
+| Agent A (web) | ROOM-INPUT-003A | done | 2026-02-23 10:43 | 캔버스 조준/드래그 기반 샷 입력 UI 연동 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -164,7 +164,7 @@
 | ROOM-SIM-001A | Agent A | done | 2026-02-23 10:35 | `node --experimental-strip-types --test apps/game-server/src/game/shot-state-machine.test.ts`, `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | ROOM-SIM-001B | shot 상태머신 구현 및 running 중 중복 샷 거부 가드 연동 완료 |
 | ROOM-SIM-001B | Agent A | done | 2026-02-23 10:37 | `node --experimental-strip-types --test apps/game-server/src/game/snapshot-serializer.test.ts`, `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | ROOM-SIM-001C | 물리 tick -> snapshot 직렬화 파이프라인 구현 완료 |
 | ROOM-SIM-001C | Agent A | done | 2026-02-23 10:41 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`, `curl --max-time 1.6 /lobby/rooms/:id/stream?memberId=u1`에서 shot_started/shot_resolved/turn_changed 확인 | - | ROOM-INPUT-003A | shot 종료/턴전환 이벤트 브로드캐스트 연계 완료 |
-| ROOM-INPUT-003A | Agent A | todo | - | - | - | ROOM-INPUT-003B | 조준/드래그 샷 입력 UI 구현 예정 |
+| ROOM-INPUT-003A | Agent A | done | 2026-02-23 10:43 | `WEB_PORT=9217 ... @bhc/web run dev`, `curl /room/room-1 | rg \"pointerdown|pointerup|submitShotInput|canvas-drag\"` 확인 | - | ROOM-INPUT-003B | 조준/드래그 샷 입력 UI 구성 완료 |
 | ROOM-INPUT-003B | Agent A | todo | - | - | - | ROOM-INPUT-003C | 샷 중복 입력 잠금/피드백 UX 구현 예정 |
 | ROOM-INPUT-003C | Agent A | todo | - | - | - | ROOM-QA-002A | 샷 검증 실패 메시지 룸 UI 통합 예정 |
 | ROOM-QA-002A | Agent C | todo | - | - | - | ROOM-QA-002B | 1클라 샷-턴전환 스모크 자동화 예정 |

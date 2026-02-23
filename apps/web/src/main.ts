@@ -878,6 +878,13 @@ function renderRoomPage(roomId: string): string {
     let streamMemberId = null;
     let myMemberId = null;
     let timerValue = 10;
+    const cueBallAnchor = { x: 0.70, y: 0.71 };
+    const dragInputState = {
+      active: false,
+      pointerId: -1,
+      startX: 0,
+      startY: 0,
+    };
     const TABLE_WORLD_WIDTH_M = 2.84;
     const TABLE_WORLD_HEIGHT_M = 1.42;
     const stageState = {
@@ -1112,6 +1119,26 @@ function renderRoomPage(roomId: string): string {
       pushStageSnapshot(createDefaultStageSnapshot(2, now));
     }
 
+    function clampNumber(value, min, max) {
+      if (value < min) {
+        return min;
+      }
+      if (value > max) {
+        return max;
+      }
+      return value;
+    }
+
+    function updateShotInputsFromPointer(localX, localY) {
+      const worldPoint = canvasToWorld({ x: localX, y: localY });
+      const dx = worldPoint.x - cueBallAnchor.x;
+      const dy = worldPoint.y - cueBallAnchor.y;
+      const directionDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
+      shotDirection.value = directionDeg.toFixed(2);
+      roomStage.dataset.worldX = worldPoint.x.toFixed(3);
+      roomStage.dataset.worldY = worldPoint.y.toFixed(3);
+    }
+
     function initRoomStage() {
       if (!(roomStage instanceof HTMLCanvasElement)) {
         return;
@@ -1147,13 +1174,43 @@ function renderRoomPage(roomId: string): string {
         resizeStageCanvas();
         renderStageFrame();
       });
+      roomStage.addEventListener('pointerdown', (event) => {
+        const bounds = roomStage.getBoundingClientRect();
+        dragInputState.active = true;
+        dragInputState.pointerId = event.pointerId;
+        dragInputState.startX = (event.clientX - bounds.left) * stageState.dpr;
+        dragInputState.startY = (event.clientY - bounds.top) * stageState.dpr;
+        updateShotInputsFromPointer(dragInputState.startX, dragInputState.startY);
+        roomStage.setPointerCapture(event.pointerId);
+      });
       roomStage.addEventListener('pointermove', (event) => {
         const bounds = roomStage.getBoundingClientRect();
         const localX = (event.clientX - bounds.left) * stageState.dpr;
         const localY = (event.clientY - bounds.top) * stageState.dpr;
-        const worldPoint = canvasToWorld({ x: localX, y: localY });
-        roomStage.dataset.worldX = worldPoint.x.toFixed(3);
-        roomStage.dataset.worldY = worldPoint.y.toFixed(3);
+        updateShotInputsFromPointer(localX, localY);
+        if (!dragInputState.active || dragInputState.pointerId !== event.pointerId) {
+          return;
+        }
+        const dragDistancePx = Math.hypot(localX - dragInputState.startX, localY - dragInputState.startY) / stageState.dpr;
+        const normalizedDrag = clampNumber(Math.round(dragDistancePx), 10, 400);
+        shotDrag.value = String(normalizedDrag);
+        setStageMessage('캔버스 입력: 방향 ' + shotDirection.value + '도, drag ' + normalizedDrag + 'px', false);
+      });
+      roomStage.addEventListener('pointerup', async (event) => {
+        if (!dragInputState.active || dragInputState.pointerId !== event.pointerId) {
+          return;
+        }
+        dragInputState.active = false;
+        roomStage.releasePointerCapture(event.pointerId);
+        await submitShotInput('canvas-drag');
+      });
+      roomStage.addEventListener('pointercancel', (event) => {
+        if (!dragInputState.active || dragInputState.pointerId !== event.pointerId) {
+          return;
+        }
+        dragInputState.active = false;
+        roomStage.releasePointerCapture(event.pointerId);
+        setStageMessage('캔버스 입력이 취소되었습니다.', true);
       });
       window.__bhcRoomStage = {
         worldToCanvas,
@@ -1396,11 +1453,10 @@ function renderRoomPage(roomId: string): string {
       window.location.href = '/lobby';
     });
 
-    shotForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    async function submitShotInput(source) {
       if (!myMemberId) {
         setRoomMessage('세션 정보가 없습니다. 다시 로그인해 주세요.', 'error');
-        return;
+        return false;
       }
 
       const payload = {
@@ -1427,9 +1483,15 @@ function renderRoomPage(roomId: string): string {
         setShotMessage('샷 제출 실패: ' + getRoomErrorMessage(errorCode), 'error');
         const details = Array.isArray(result.data.errors) ? result.data.errors : [];
         shotErrors.textContent = details.length > 0 ? details.join('\\n') : '';
-        return;
+        return false;
       }
-      setShotMessage('샷 입력이 서버에 접수되었습니다.', '');
+      setShotMessage('샷 입력이 서버에 접수되었습니다. (' + source + ')', '');
+      return true;
+    }
+
+    shotForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      await submitShotInput('form');
     });
 
     chatForm.addEventListener('submit', async (event) => {
