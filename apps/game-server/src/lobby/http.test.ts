@@ -381,6 +381,28 @@ test('연결해제 유예 만료: IN_GAME에서 미복귀 시 LOSE 처리되고 
   assert.equal(created.room.members[0].memberId, 'u2');
 });
 
+test('연결복구: 유예 타이머가 존재해도 스트림 재접속 시 타이머가 해제된다', () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'reconnect-ok' });
+  assert.equal(created.ok, true);
+  if (!created.ok) {
+    return;
+  }
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  joinRoom(state, created.room.roomId, { memberId: 'u2', displayName: 'guest' });
+  const started = startRoomGame(state, created.room.roomId, 'u1');
+  assert.equal(started.ok, true);
+  if (!started.ok) {
+    return;
+  }
+
+  const timerKey = `${created.room.roomId}:u1`;
+  state.disconnectGraceTimers[timerKey] = setTimeout(() => undefined, 10_000);
+  const opened = openRoomSnapshotStream(state, created.room.roomId, 'u1');
+  assert.equal(opened.ok, true);
+  assert.equal(state.disconnectGraceTimers[timerKey], null);
+});
+
 test('룸 스트림 오픈: 룸 멤버면 snapshot을 반환한다', () => {
   const { state } = createLobbyHttpServer();
   const created = createRoom(state, { title: 'stream-room' });

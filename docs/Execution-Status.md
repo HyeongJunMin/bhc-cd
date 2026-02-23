@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 176 |
-| Todo | 16 |
+| Todo | 15 |
 | In Progress | 0 |
-| Done | 160 |
+| Done | 161 |
 | Blocked | 0 |
-| Last Updated | 2026-02-23 11:24 |
+| Last Updated | 2026-02-23 11:25 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | LEAVE-001C | done | 2026-02-23 11:24 | disconnect 10초 유예/미복귀 패배/1인 생존 승리 연동 완료 |
+| Agent A (web) | LEAVE-001D | done | 2026-02-23 11:25 | 유예 중 재접속 시 disconnect 타이머 해제 검증 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -185,7 +185,7 @@
 | LEAVE-001A | Agent A | done | 2026-02-23 11:23 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(21 pass) | - | LEAVE-001B | `POST /lobby/rooms/:roomId/leave` API 및 웹 나가기 버튼 연동 완료 |
 | LEAVE-001B | Agent A | done | 2026-02-23 11:24 | `rg -n \"DISCONNECT_GRACE_MS|scheduleDisconnectGraceTimer|disconnectGraceTimers\" apps/game-server/src/lobby/http.ts` 확인 | - | LEAVE-001C | disconnect 10초 유예 타이머 구현 완료 |
 | LEAVE-001C | Agent A | done | 2026-02-23 11:24 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(22 pass) | - | LEAVE-001D | 미복귀 LOSE 확정/멤버 제거 및 1인 생존 승리 종료 반영 완료 |
-| LEAVE-001D | Agent A | todo | 2026-02-23 11:03 | - | - | HOST-DELEGATE-001A | 유예중 복귀 취소/세션 복원 테스트 예정 |
+| LEAVE-001D | Agent A | done | 2026-02-23 11:25 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(23 pass) | - | HOST-DELEGATE-001A | 유예 중 재접속 시 disconnect 타이머 해제 테스트 추가 완료 |
 | HOST-DELEGATE-001A | Agent A | todo | 2026-02-23 11:03 | - | - | HOST-DELEGATE-001B | kick/leave/disconnect 제거 경로 공통화 예정 |
 | HOST-DELEGATE-001B | Agent A | todo | 2026-02-23 11:03 | - | - | HOST-DELEGATE-001C | host 이탈 자동 위임 실경로 연동 예정 |
 | HOST-DELEGATE-001C | Agent A | todo | 2026-02-23 11:03 | - | - | CHAT-RL-001A | 위임 이벤트 수신 기반 권한 UI 갱신 예정 |
