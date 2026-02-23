@@ -465,3 +465,15 @@
 - `ROOM-UI-004A`: 큐볼 기준 진행 Ray와 쿠션 교차점 계산 유틸 추가
 - `ROOM-UI-004B`: 목적구(타겟볼) 1차 충돌 후보 계산 및 최단 충돌 선택
 - `ROOM-UI-004C`: aiming 중 예측선/충돌점 마커 렌더 및 비턴/잠금 상태 숨김 처리
+
+### Phase Q. 공-공 충돌 물리 런타임 (2026-02-23)
+
+#### PHYS-COLL-001 서버 공-공 충돌 구현
+- `PHYS-COLL-001A`: room 물리 tick에 공-공 충돌 쌍 검사(O(n^2), 3구 기준) 추가
+- `PHYS-COLL-001B`: 탄성 충돌 임펄스 적용(`e_bb` 범위 기본값 사용) 및 속도 갱신
+- `PHYS-COLL-001C`: 겹침 보정(positional correction) + NaN/속도 상한 가드 추가
+- `PHYS-COLL-001D`: 20Hz 브로드캐스트 유지, 내부 물리 substep(4) 적용
+
+#### PHYS-COLL-TEST-001 충돌 검증
+- `PHYS-COLL-TEST-001A`: 정면 충돌 후 속도 전달/방향 분리 단위 테스트
+- `PHYS-COLL-TEST-001B`: 비충돌/겹침 보정/정지 임계 회귀 테스트

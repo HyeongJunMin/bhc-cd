@@ -1299,6 +1299,50 @@ function renderRoomPage(roomId: string): string {
       return cueBallAnchor;
     }
 
+    function computeFirstCushionIntersection(origin, direction) {
+      const minX = cueBallRadiusM;
+      const maxX = TABLE_WORLD_WIDTH_M - cueBallRadiusM;
+      const minY = cueBallRadiusM;
+      const maxY = TABLE_WORLD_HEIGHT_M - cueBallRadiusM;
+      const epsilon = 1e-6;
+      let bestDistance = Number.POSITIVE_INFINITY;
+      let bestPoint = null;
+      let bestType = '';
+
+      if (Math.abs(direction.x) > epsilon) {
+        const targetX = direction.x > 0 ? maxX : minX;
+        const t = (targetX - origin.x) / direction.x;
+        if (t > 0) {
+          const y = origin.y + direction.y * t;
+          if (y >= minY && y <= maxY && t < bestDistance) {
+            bestDistance = t;
+            bestPoint = { x: targetX, y };
+            bestType = 'cushion-x';
+          }
+        }
+      }
+      if (Math.abs(direction.y) > epsilon) {
+        const targetY = direction.y > 0 ? maxY : minY;
+        const t = (targetY - origin.y) / direction.y;
+        if (t > 0) {
+          const x = origin.x + direction.x * t;
+          if (x >= minX && x <= maxX && t < bestDistance) {
+            bestDistance = t;
+            bestPoint = { x, y: targetY };
+            bestType = 'cushion-y';
+          }
+        }
+      }
+      if (!bestPoint) {
+        return null;
+      }
+      return {
+        hitType: bestType,
+        distanceM: bestDistance,
+        point: bestPoint,
+      };
+    }
+
     function drawCueStickOverlay() {
       if (aimInputState.mode !== 'aiming') {
         return;
@@ -1328,6 +1372,7 @@ function renderRoomPage(roomId: string): string {
       const tipDistancePx = cueBallRadiusPx + 10;
       const stickLengthPx = 120 + dragRatio * 100;
       const backDistancePx = tipDistancePx + stickLengthPx;
+      const firstCushionHit = computeFirstCushionIntersection(cueBall, { x: unitX, y: unitY });
 
       const tipX = cueBallCanvas.x - unitX * tipDistancePx;
       const tipY = cueBallCanvas.y - unitY * tipDistancePx;
@@ -1356,7 +1401,12 @@ function renderRoomPage(roomId: string): string {
       context.strokeStyle = 'rgba(248, 250, 252, 0.8)';
       context.beginPath();
       context.moveTo(cueBallCanvas.x, cueBallCanvas.y);
-      context.lineTo(cueBallCanvas.x + unitX * 220, cueBallCanvas.y + unitY * 220);
+      if (firstCushionHit) {
+        const hitCanvas = worldToCanvas(firstCushionHit.point);
+        context.lineTo(hitCanvas.x, hitCanvas.y);
+      } else {
+        context.lineTo(cueBallCanvas.x + unitX * 220, cueBallCanvas.y + unitY * 220);
+      }
       context.stroke();
       context.restore();
     }
