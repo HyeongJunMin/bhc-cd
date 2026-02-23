@@ -1,6 +1,7 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, resolve, sep } from 'node:path';
+import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 
 const PORT_MIN = 9211;
@@ -61,6 +62,45 @@ async function proxyJsonRequest(
     res.statusCode = upstream.status;
     res.setHeader('content-type', 'application/json; charset=utf-8');
     res.end(text);
+  } catch {
+    writeJson(res, 502, { errorCode: upstreamUnavailableCode });
+  }
+}
+
+async function proxyEventStreamRequest(
+  res: ServerResponse,
+  targetUrl: string,
+  upstreamUnavailableCode: 'LOBBY_SERVER_UNAVAILABLE',
+): Promise<void> {
+  try {
+    const upstream = await fetch(targetUrl, {
+      method: 'GET',
+      headers: {
+        accept: 'text/event-stream',
+      },
+    });
+    if (!upstream.ok) {
+      const text = await upstream.text();
+      res.statusCode = upstream.status;
+      res.setHeader('content-type', upstream.headers.get('content-type') || 'application/json; charset=utf-8');
+      res.end(text);
+      return;
+    }
+    if (!upstream.body) {
+      writeJson(res, 502, { errorCode: upstreamUnavailableCode });
+      return;
+    }
+
+    res.statusCode = 200;
+    res.setHeader('content-type', upstream.headers.get('content-type') || 'text/event-stream; charset=utf-8');
+    res.setHeader('cache-control', 'no-cache, no-transform');
+    res.setHeader('connection', 'keep-alive');
+    const readable = Readable.fromWeb(upstream.body as globalThis.ReadableStream<Uint8Array>);
+    readable.pipe(res);
+    const dispose = () => {
+      readable.destroy();
+    };
+    res.on('close', dispose);
   } catch {
     writeJson(res, 502, { errorCode: upstreamUnavailableCode });
   }
@@ -834,6 +874,8 @@ function renderRoomPage(roomId: string): string {
     const shotDrag = document.getElementById('shot-drag');
     const shotMessage = document.getElementById('shot-message');
     const shotErrors = document.getElementById('shot-errors');
+    let roomStream = null;
+    let streamMemberId = null;
     let myMemberId = null;
     let timerValue = 10;
     const TABLE_WORLD_WIDTH_M = 2.84;
@@ -1137,6 +1179,37 @@ function renderRoomPage(roomId: string): string {
       }
     }
 
+    function connectRoomStream(memberId) {
+      if (!memberId) {
+        return;
+      }
+      if (roomStream && streamMemberId === memberId) {
+        return;
+      }
+      if (roomStream) {
+        roomStream.close();
+      }
+      streamMemberId = memberId;
+      const streamUrl = '/api/room-stream/${roomId}?memberId=' + encodeURIComponent(memberId);
+      roomStream = new EventSource(streamUrl);
+      roomStream.addEventListener('room_snapshot', (event) => {
+        try {
+          const snapshot = JSON.parse(event.data);
+          if (window.__bhcRoomStage && typeof window.__bhcRoomStage.pushSnapshot === 'function') {
+            window.__bhcRoomStage.pushSnapshot(snapshot);
+          }
+        } catch {
+          setStageMessage('snapshot 파싱에 실패했습니다.', true);
+        }
+      });
+      roomStream.onerror = () => {
+        setStageMessage('스트림 연결이 일시 중단되었습니다. 재연결을 시도합니다.', true);
+      };
+      roomStream.onopen = () => {
+        setStageMessage('실시간 snapshot 스트림 연결됨', false);
+      };
+    }
+
     async function runRoomAction(path, payload, successMessage) {
       const result = await requestJson(path, {
         method: 'POST',
@@ -1228,6 +1301,9 @@ function renderRoomPage(roomId: string): string {
       const canStart = Boolean(isHost) && room.state === 'WAITING' && room.playerCount >= 2;
       const canRematch = Boolean(isHost) && room.state !== 'WAITING' && room.playerCount >= 2;
       const amIMember = room.members.some((member) => String(member.memberId) === String(myMemberId));
+      if (amIMember && myMemberId) {
+        connectRoomStream(String(myMemberId));
+      }
 
       document.getElementById('room-title').textContent = room.title;
       document.getElementById('room-state').textContent = room.state;
@@ -1386,6 +1462,11 @@ function renderRoomPage(roomId: string): string {
       timerValue = timerValue <= 0 ? 10 : timerValue - 1;
       hudTimer.textContent = String(timerValue);
     }, 1000);
+    window.addEventListener('beforeunload', () => {
+      if (roomStream) {
+        roomStream.close();
+      }
+    });
   </script>
 </body>
 </html>`;
@@ -1423,6 +1504,22 @@ const server = createServer(async (req, res) => {
   if (req.method === 'GET' && req.url?.startsWith('/api/lobby/rooms')) {
     const target = `${lobbyServerUrl}${req.url.replace('/api', '')}`;
     await proxyJsonRequest(req, res, target, 'GET', 'LOBBY_SERVER_UNAVAILABLE');
+    return;
+  }
+
+  if (req.method === 'GET' && req.url?.startsWith('/api/room-stream/')) {
+    const url = new URL(req.url, 'http://localhost');
+    const match = url.pathname.match(/^\/api\/room-stream\/([^/?#]+)$/);
+    const roomId = match?.[1];
+    if (!roomId) {
+      writeJson(res, 404, { errorCode: 'ROOM_NOT_FOUND' });
+      return;
+    }
+    const target = new URL(`/lobby/rooms/${roomId}/stream`, lobbyServerUrl);
+    for (const [key, value] of url.searchParams.entries()) {
+      target.searchParams.set(key, value);
+    }
+    await proxyEventStreamRequest(res, target.toString(), 'LOBBY_SERVER_UNAVAILABLE');
     return;
   }
 

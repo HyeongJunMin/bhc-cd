@@ -10,16 +10,16 @@
 | Metric | Value |
 |---|---|
 | Total Tasks | 144 |
-| Todo | 10 |
+| Todo | 9 |
 | In Progress | 0 |
-| Done | 134 |
+| Done | 135 |
 | Blocked | 0 |
-| Last Updated | 2026-02-23 10:33 |
+| Last Updated | 2026-02-23 10:34 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | ROOM-NET-001B | done | 2026-02-23 10:33 | 20Hz broadcaster 및 seq 단조 증가 검증 완료 |
+| Agent A (web) | ROOM-NET-001C | done | 2026-02-23 10:34 | web room-stream 프록시/클라 연결 경로 연동 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -160,7 +160,7 @@
 | ROOM-UI-002C | Agent A | done | 2026-02-23 10:26 | `WEB_PORT=9217 pnpm --filter @bhc/web run dev`, `curl -sS http://localhost:9217/room/room-1 \| rg \"interpolateSnapshots\|requestAnimationFrame\|pushSnapshot\"`, `curl -sS -D - http://localhost:9217/assets/table/table-top.png -o /tmp/bhc/table-top.bin` 확인 | - | ROOM-NET-001A | 공 렌더/snapshot 보간 루프 구현 완료 |
 | ROOM-NET-001A | Agent A | done | 2026-02-23 10:28 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`, `curl /lobby/rooms/:id/stream?memberId=u2`(ROOM_STREAM_FORBIDDEN), `curl /lobby/rooms/:id/stream?memberId=u1` 확인 | - | ROOM-NET-001B | 룸 snapshot 스트림 엔드포인트 추가 및 비멤버 403 정책 적용 완료 |
 | ROOM-NET-001B | Agent A | done | 2026-02-23 10:33 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`, `curl --max-time 1.2 /lobby/rooms/:id/stream?memberId=u1` 이벤트 수 24건/1.2초 확인 | - | ROOM-NET-001C | 20Hz broadcaster/seq 기반 full snapshot 전송 구현 완료 |
-| ROOM-NET-001C | Agent A | todo | - | - | - | ROOM-SIM-001A | web 프록시/연결 경로 연동 예정 |
+| ROOM-NET-001C | Agent A | done | 2026-02-23 10:34 | `WEB_PORT=9217 ... @bhc/web run dev`, `curl /api/room-stream/room-1?memberId=u2`(ROOM_STREAM_FORBIDDEN), `curl --max-time 1.2 /api/room-stream/room-1?memberId=u1` 이벤트 수 24건 확인 | - | ROOM-SIM-001A | web 프록시/연결 경로 및 room 페이지 스트림 연결 연동 완료 |
 | ROOM-SIM-001A | Agent B | todo | - | - | - | ROOM-SIM-001B | shot 상태머신 구현 예정 |
 | ROOM-SIM-001B | Agent C | todo | - | - | - | ROOM-SIM-001C | 물리 tick -> snapshot 직렬화 구현 예정 |
 | ROOM-SIM-001C | Agent B | todo | - | - | - | ROOM-INPUT-003A | shot 종료/턴전환/득점 이벤트 브로드캐스트 연계 예정 |
