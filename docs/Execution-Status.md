@@ -9,17 +9,17 @@
 ## 요약
 | Metric | Value |
 |---|---|
-| Total Tasks | 178 |
+| Total Tasks | 183 |
 | Todo | 0 |
 | In Progress | 0 |
-| Done | 178 |
+| Done | 183 |
 | Blocked | 0 |
-| Last Updated | 2026-02-24 10:45 |
+| Last Updated | 2026-02-24 10:55 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | ROOM-UI-005B | done | 2026-02-24 10:45 | 테이블 레이어 규격/순서 QA 스크립트 및 2:1 리사이즈 검증 완료 |
+| Agent A (web) | ROOM-UI-005G | done | 2026-02-24 10:55 | 테이블 레이어 QA(HTTP/경계/반응형/렌더순서) 자동화 5개 태스크 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -216,3 +216,8 @@
 | PHYS-COLL-TEST-001B | Agent A | done | 2026-02-23 15:59 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | ROOM-SYNC-002A | 비충돌 경로 회귀 테스트 추가 완료 |
 | ROOM-UI-005A | Agent A | done | 2026-02-24 10:28 | `pnpm --filter @bhc/web run lint` 통과, `node --input-type=module` 경로해석/파일읽기 검증(inside=true, ok=true) 통과 | - | ROOM-UI-005B | 테이블 정적 에셋 경로 정규화로 /assets/table/* 404 핫픽스 완료 |
 | ROOM-UI-005B | Agent A | done | 2026-02-24 10:45 | `node --experimental-strip-types scripts/qa/room-table-layer-assets.ts` 통과(local/source pass, http skip), `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-005C | 테이블 frame/cloth 2:1 규격 보정 및 레이어 순서 QA 자동화 스크립트 추가 완료 |
+| ROOM-UI-005C | Agent A | done | 2026-02-24 10:55 | `pnpm run qa:table-layer:local` 통과, `pnpm run qa:table-layer:http`에서 QA_BASE_URL 미설정 시 즉시 실패(assert) 확인 | - | ROOM-UI-005D | table layer HTTP 검증 경로 강제(mode 기반) 및 루트 실행 스크립트 추가 완료 |
+| ROOM-UI-005D | Agent A | done | 2026-02-24 10:55 | `pnpm run qa:table-layer:local` 통과(레거시 `table-top.png` 참조 잔존 검사 포함) | - | ROOM-UI-005E | table-top 레거시 참조 제거 정책을 QA로 강제 |
+| ROOM-UI-005E | Agent A | done | 2026-02-24 10:55 | `pnpm run qa:table-boundary` 통과 | - | ROOM-UI-005F | 공 가시 경계/물리 경계 상수 및 경계조건 일치성 자동 검증 완료 |
+| ROOM-UI-005F | Agent A | done | 2026-02-24 10:55 | `QA_BASE_URL=http://127.0.0.1:<mock-port> pnpm run qa:table-layer:render-http` 통과 | - | ROOM-UI-005G | HTTP 기반 렌더 순서(frame->cloth->balls) 회귀 자동 검증 완료 |
+| ROOM-UI-005G | Agent A | done | 2026-02-24 10:55 | `pnpm run qa:table-responsive` 통과 | - | - | 반응형 2:1 비율/뷰포트 왜곡 회귀 자동 검증 완료 |

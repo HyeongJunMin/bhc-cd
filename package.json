@@ -7,6 +7,12 @@
     "dev": "pnpm -r --parallel --if-present run dev",
     "build": "pnpm -r --if-present run build",
     "test": "pnpm -r --if-present run test",
-    "lint": "pnpm -r --if-present run lint"
+    "lint": "pnpm -r --if-present run lint",
+    "qa:table-layer:local": "node --experimental-strip-types scripts/qa/room-table-layer-assets.ts --mode=local",
+    "qa:table-layer:http": "node --experimental-strip-types scripts/qa/room-table-layer-assets.ts --mode=http",
+    "qa:table-layer:all": "node --experimental-strip-types scripts/qa/room-table-layer-assets.ts --mode=all",
+    "qa:table-boundary": "node --experimental-strip-types scripts/qa/room-boundary-consistency.ts",
+    "qa:table-layer:render-http": "node --experimental-strip-types scripts/qa/room-layer-render-http.ts",
+    "qa:table-responsive": "node --experimental-strip-types scripts/qa/room-responsive-viewport.ts"
   }
 }
