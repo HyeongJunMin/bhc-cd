@@ -24,3 +24,8 @@ test('verifyPassword: 잘못된 포맷은 예외 없이 false를 반환한다', 
     assert.equal(result, false);
   });
 });
+
+test('verifyPassword: 지원하지 않는 알고리즘은 false를 반환한다', async () => {
+  const result = await verifyPassword('any-password', 'v1$unsupported$bm9uY2U=$ZGlnZXN0');
+  assert.equal(result, false);
+});
