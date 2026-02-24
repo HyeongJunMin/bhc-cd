@@ -1263,11 +1263,12 @@ function renderRoomPage(roomId: string): string {
       if (!context) {
         return;
       }
-      const center = worldToCanvas(cueBallAnchor);
+      const cueBall = getCueBallWorldPosition();
+      const center = worldToCanvas(cueBall);
       const overlayRadiusPx = (cueBallRadiusM / TABLE_WORLD_WIDTH_M) * stageState.viewport.width;
       const offsetPoint = worldToCanvas({
-        x: cueBallAnchor.x + impactOffsetState.x * cueBallRadiusM,
-        y: cueBallAnchor.y + impactOffsetState.y * cueBallRadiusM,
+        x: cueBall.x + impactOffsetState.x * cueBallRadiusM,
+        y: cueBall.y + impactOffsetState.y * cueBallRadiusM,
       });
 
       context.save();
@@ -1605,8 +1606,9 @@ function renderRoomPage(roomId: string): string {
 
     function updateShotInputsFromPointer(localX, localY) {
       const worldPoint = canvasToWorld({ x: localX, y: localY });
-      const dx = worldPoint.x - cueBallAnchor.x;
-      const dy = worldPoint.y - cueBallAnchor.y;
+      const cueBall = getCueBallWorldPosition();
+      const dx = worldPoint.x - cueBall.x;
+      const dy = worldPoint.y - cueBall.y;
       const directionDeg = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
       shotDirection.value = directionDeg.toFixed(2);
       roomStage.dataset.worldX = worldPoint.x.toFixed(3);
