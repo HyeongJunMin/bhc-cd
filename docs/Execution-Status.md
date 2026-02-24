@@ -9,17 +9,17 @@
 ## 요약
 | Metric | Value |
 |---|---|
-| Total Tasks | 177 |
+| Total Tasks | 178 |
 | Todo | 0 |
 | In Progress | 0 |
-| Done | 177 |
+| Done | 178 |
 | Blocked | 0 |
-| Last Updated | 2026-02-24 10:28 |
+| Last Updated | 2026-02-24 10:45 |
 
 ## 에이전트 상태
 | Agent | Current Task | Status | Updated At | Note |
 |---|---|---|---|---|
-| Agent A (web) | ROOM-UI-005A | done | 2026-02-24 10:28 | 테이블 레이어 에셋 404 원인(trailing slash 경로검사 실패) 수정 완료 |
+| Agent A (web) | ROOM-UI-005B | done | 2026-02-24 10:45 | 테이블 레이어 규격/순서 QA 스크립트 및 2:1 리사이즈 검증 완료 |
 | Agent B (game-server) | - | idle | - | - |
 | Agent C (shared/physics/docs) | INF-002C | done | 2026-02-23 09:16 | 오프라인 실행 경로로 lint 스모크 통과 |
 
@@ -215,3 +215,4 @@
 | PHYS-COLL-TEST-001A | Agent A | done | 2026-02-23 15:59 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | PHYS-COLL-TEST-001B | 정면 충돌 전달 테스트 추가 완료 |
 | PHYS-COLL-TEST-001B | Agent A | done | 2026-02-23 15:59 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과 | - | ROOM-SYNC-002A | 비충돌 경로 회귀 테스트 추가 완료 |
 | ROOM-UI-005A | Agent A | done | 2026-02-24 10:28 | `pnpm --filter @bhc/web run lint` 통과, `node --input-type=module` 경로해석/파일읽기 검증(inside=true, ok=true) 통과 | - | ROOM-UI-005B | 테이블 정적 에셋 경로 정규화로 /assets/table/* 404 핫픽스 완료 |
+| ROOM-UI-005B | Agent A | done | 2026-02-24 10:45 | `node --experimental-strip-types scripts/qa/room-table-layer-assets.ts` 통과(local/source pass, http skip), `pnpm --filter @bhc/web run lint` 통과 | - | ROOM-UI-005C | 테이블 frame/cloth 2:1 규격 보정 및 레이어 순서 QA 자동화 스크립트 추가 완료 |
