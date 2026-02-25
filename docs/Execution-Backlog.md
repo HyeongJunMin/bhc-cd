@@ -395,6 +395,56 @@
 5. 다음 세션 시작 지점:
 ```
 
+### Phase J. 물리 터널링 버그 수정
+
+#### PHYS-TUN-001 속도 상한 통일
+- 목적: 시뮬레이션 최대 속도를 물리 스펙과 일치시킨다.
+- 배경: `http.ts`의 `MAX_BALL_SPEED_MPS=30`(108km/h)이 스펙(50km/h) 및 현실적 최대 속도(56km/h)와 불일치.
+- 작업:
+  1) `http.ts`의 `MAX_BALL_SPEED_MPS`를 15.56(≈56km/h)으로 변경
+  2) `shot-init.ts`의 `MAX_BALL_SPEED_MPS`도 15.56으로 통일
+- 완료 조건(DoD):
+  - 두 파일의 속도 상한이 동일
+  - 기존 테스트 전체 통과
+- 검증 명령:
+  - `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
+
+#### PHYS-TUN-002 적응형 서브스텝 도입
+- 목적: 서브스텝 당 공 이동거리가 공 반지름 이하가 되도록 보장하여 터널링을 원천 방지한다.
+- 배경: 고정 4 서브스텝에서 고속 공이 서브스텝 당 공 지름의 6배를 이동할 수 있음.
+- 작업:
+  1) `stepRoomPhysics` 함수에서 현재 최대 공 속도 기반으로 필요 서브스텝 수를 동적 계산
+  2) 최소 서브스텝 = 4 (저속 시 성능 유지), 최대 서브스텝 상한 설정
+  3) 공식: `substeps = max(4, ceil(maxSpeed * dt / BALL_RADIUS_M))`
+- 완료 조건(DoD):
+  - 최대 속도(15.56 m/s) 기준 서브스텝 당 이동거리 ≤ BALL_RADIUS_M
+  - 기존 테스트 전체 통과
+- 검증 명령:
+  - `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
+
+#### PHYS-TUN-003 CCD 로직 수정
+- 목적: swept collision 감지가 discrete 검사와 무관하게 항상 실행되도록 수정한다.
+- 배경: 현재 discrete 충돌 감지 시 `continue`로 CCD를 건너뛰어, 고속 관통 시 충돌 시점이 부정확함.
+- 작업:
+  1) discrete 검사와 swept collision을 통합하여 항상 정확한 충돌 시점을 계산
+  2) 충돌 시 위치를 충돌 시점으로 되감고 임펄스 적용 후 잔여 시간만큼 전진
+- 완료 조건(DoD):
+  - 고속 충돌 시에도 정확한 충돌 시점에서 임펄스가 적용됨
+  - 기존 테스트 전체 통과
+- 검증 명령:
+  - `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
+
+#### PHYS-TUN-004 터널링 방지 테스트 추가
+- 목적: 고속 공의 충돌 누락을 방지하는 회귀 테스트를 추가한다.
+- 작업:
+  1) 최대 속도로 직선 충돌하는 시나리오 테스트
+  2) 공이 다른 공을 통과하지 않는지 검증
+  3) 충돌 후 운동량 보존 검증
+- 완료 조건(DoD):
+  - 터널링 시나리오 테스트 전체 통과
+- 검증 명령:
+  - `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
+
 ## 8. 다음 권장 착수 순서
 1. INF-001 ~ INF-003
 2. AUTH-001 ~ AUTH-003

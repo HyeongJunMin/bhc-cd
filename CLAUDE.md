@@ -87,9 +87,33 @@ bhc-c (monorepo)
 - `schemaVersion`은 `schemas/shot-input-v1.json`과 Input-Schema 문서가 일치해야 함.
 - 스펙 변경 후 반드시 실행: `python3 scripts/ci/spec_guard.py <변경_파일...>`
 
-## Task Workflow (Task-Workflow.md — 필수)
+## Task Workflow (필수)
 
-구현 작업 시작 전 `docs/Execution-Backlog.md`에서 Task ID 선택 → `docs/Execution-Status.md`에서 `in_progress` 표시.
+개발은 아래 5단계를 순서대로 따른다.
+
+### 1단계: 요구사항 확인 및 분석
+- 사용자의 요구사항을 확인하고 코드베이스를 분석하여 영향 범위를 파악한다.
+- 불명확한 부분은 반드시 사용자에게 질문하여 해소한다.
+
+### 2단계: 세부 일감 작성
+- 분석 결과를 바탕으로 세부 일감을 작성한다.
+- `docs/Execution-Backlog.md`에 Task ID와 함께 일감을 추가한다.
+- `docs/Execution-Status.md`에 각 일감의 상태를 `pending`으로 등록한다.
+- 사용자에게 일감 목록을 공유하고 확인받은 후 개발을 시작한다.
+
+### 3단계: 일감 별 개발 및 커밋
+- `docs/Execution-Status.md`에서 현재 일감을 `in_progress`로 변경한다.
+- 일감 단위로 개발하고, 완료 시 일감 별로 커밋한다.
+- 커밋 후 `docs/Execution-Status.md`를 `done`으로 업데이트한다.
+- **푸시는 하지 않는다** — 모든 커밋은 로컬에 쌓아둔다.
+
+### 4단계: 사용자 기능 확인
+- 모든 일감 개발 완료 후, 사용자에게 기능 확인을 요청한다.
+- 사용자가 수정을 요청하면 추가 커밋으로 반영한다.
+
+### 5단계: 푸시 (사용자 허가 필수)
+- **사용자가 명시적으로 허가한 경우에만** 푸시한다.
+- 허가 없이 절대 푸시하지 않는다.
 
 **커밋 메시지 형식:**
 ```
@@ -105,7 +129,6 @@ Next Task: <다음 Task ID>
 ```
 
 - 설명 텍스트는 **한국어**, Task ID/파일 경로/명령어는 **영문** 유지
-- Task 완료마다 즉시 commit + push
 - 브랜치명: `task/<TASK-ID>-<short-slug>`
 - 작업 완료 후 `docs/Execution-Status.md` 업데이트 필수 (Status, Validation, Next Task, Updated At)
 

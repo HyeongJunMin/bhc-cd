@@ -4,7 +4,7 @@ import { computeInitialBallSpeed, solveCueSpeedForTargetBallSpeed } from './init
 export const MIN_DRAG_PX = 10;
 export const MAX_DRAG_PX = 400;
 export const MIN_BALL_SPEED_MPS = 1;
-export const MAX_BALL_SPEED_MPS = 13.89;
+export const MAX_BALL_SPEED_MPS = 15.56;
 export const MAX_IMPACT_OFFSET_M = 0.03075;
 
 export type ShotInitInput = {
