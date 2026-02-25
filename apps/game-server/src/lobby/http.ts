@@ -442,40 +442,16 @@ function resolveBallBallCollisions(
       if (!second || second.isPocketed) {
         continue;
       }
-      const deltaX = second.x - first.x;
-      const deltaY = second.y - first.y;
-      const distanceSq = deltaX * deltaX + deltaY * deltaY;
-      if (Number.isFinite(distanceSq) && distanceSq <= minDistanceSq) {
-        const distance = Math.sqrt(Math.max(distanceSq, epsilon));
-        const normalX = distance > epsilon ? deltaX / distance : 1;
-        const normalY = distance > epsilon ? deltaY / distance : 0;
-        const collided = applyImpulse(first, second, normalX, normalY);
-        if (collided && (first.id === 'cueBall' || second.id === 'cueBall')) {
-          appendShotEvent(room, {
-            type: 'BALL_COLLISION',
-            atMs: getShotElapsedMs(room),
-            sourceBallId: 'cueBall',
-            targetBallId: first.id === 'cueBall' ? second.id : first.id,
-          });
-        }
-        const penetration = minDistance - distance;
-        if (penetration > 0) {
-          const correction = ((penetration - 1e-4 > 0 ? penetration - 1e-4 : 0) / 2) * 0.8;
-          first.x -= normalX * correction;
-          first.y -= normalY * correction;
-          second.x += normalX * correction;
-          second.y += normalY * correction;
-        }
-        continue;
-      }
 
       if (!firstPrev || !secondPrev) {
         continue;
       }
+
       const hitTime = sweepHitTime(firstPrev, first, secondPrev, second);
       if (hitTime === null) {
         continue;
       }
+
       const firstHitX = firstPrev.x + (first.x - firstPrev.x) * hitTime;
       const firstHitY = firstPrev.y + (first.y - firstPrev.y) * hitTime;
       const secondHitX = secondPrev.x + (second.x - secondPrev.x) * hitTime;
@@ -485,11 +461,14 @@ function resolveBallBallCollisions(
       const hitDistance = Math.hypot(hitDeltaX, hitDeltaY);
       const normalX = hitDistance > epsilon ? hitDeltaX / hitDistance : 1;
       const normalY = hitDistance > epsilon ? hitDeltaY / hitDistance : 0;
+
+      first.x = firstHitX;
+      first.y = firstHitY;
+      second.x = secondHitX;
+      second.y = secondHitY;
+
       const collided = applyImpulse(first, second, normalX, normalY);
-      if (!collided) {
-        continue;
-      }
-      if (first.id === 'cueBall' || second.id === 'cueBall') {
+      if (collided && (first.id === 'cueBall' || second.id === 'cueBall')) {
         appendShotEvent(room, {
           type: 'BALL_COLLISION',
           atMs: getShotElapsedMs(room),
@@ -497,15 +476,27 @@ function resolveBallBallCollisions(
           targetBallId: first.id === 'cueBall' ? second.id : first.id,
         });
       }
-      first.x = firstHitX;
-      first.y = firstHitY;
-      second.x = secondHitX;
-      second.y = secondHitY;
+
       const remainDtSec = substepDtSec * (1 - hitTime);
       first.x += first.vx * remainDtSec;
       first.y += first.vy * remainDtSec;
       second.x += second.vx * remainDtSec;
       second.y += second.vy * remainDtSec;
+
+      const sepDeltaX = second.x - first.x;
+      const sepDeltaY = second.y - first.y;
+      const sepDistSq = sepDeltaX * sepDeltaX + sepDeltaY * sepDeltaY;
+      if (sepDistSq < minDistanceSq) {
+        const sepDist = Math.sqrt(Math.max(sepDistSq, epsilon));
+        const sepNx = sepDist > epsilon ? sepDeltaX / sepDist : normalX;
+        const sepNy = sepDist > epsilon ? sepDeltaY / sepDist : normalY;
+        const penetration = minDistance - sepDist;
+        const correction = (penetration / 2) + 1e-4;
+        first.x -= sepNx * correction;
+        first.y -= sepNy * correction;
+        second.x += sepNx * correction;
+        second.y += sepNy * correction;
+      }
     }
   }
 }

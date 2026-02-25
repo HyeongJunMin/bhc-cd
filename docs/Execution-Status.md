@@ -348,5 +348,5 @@ PHYS-CT-QA pass: contact-time throw angle table generated 통과 | - | - | 문�
 | PHYS-CT-007 | Agent A | done | 2026-02-24 11:48 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(29 pass), `pnpm run qa:cushion-contact-time` 통과 | - | - | 문서/코드/테스트/QA 통합 회귀 검증 완료 |
 | PHYS-TUN-001 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass, shot-init.test.ts 2 pass | - | PHYS-TUN-002 | 속도 상한 통일 (30→15.56 m/s) |
 | PHYS-TUN-002 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass | - | PHYS-TUN-003 | 적응형 서브스텝 도입 완료 |
-| PHYS-TUN-003 | Agent A | pending | - | - | - | PHYS-TUN-004 | CCD 로직 수정 |
+| PHYS-TUN-003 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass | - | PHYS-TUN-004 | CCD 로직 수정 완료 |
 | PHYS-TUN-004 | Agent A | pending | - | - | - | - | 터널링 방지 테스트 추가 |
