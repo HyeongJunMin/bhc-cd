@@ -853,3 +853,103 @@ test('HUD 동기화: 샷 종료 후 turnDeadlineMs가 갱신되고 currentTurnIn
   assert.equal(created.room.members[created.room.currentTurnIndex]?.memberId, 'u2');
   assert.ok((created.room.turnDeadlineMs ?? 0) > previousDeadlineMs);
 });
+
+test('터널링 방지: 최대 속도로 직진해도 공이 서로 통과하지 않는다', async () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'tunnel-test' });
+  assert.equal(created.ok, true);
+  if (!created.ok) return;
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  joinRoom(state, created.room.roomId, { memberId: 'u2', displayName: 'guest' });
+  const started = startRoomGame(state, created.room.roomId, 'u1');
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+  const cueBall = created.room.balls.find((ball) => ball.id === 'cueBall');
+  const objectBall1 = created.room.balls.find((ball) => ball.id === 'objectBall1');
+  assert.ok(cueBall);
+  assert.ok(objectBall1);
+  if (!cueBall || !objectBall1) return;
+
+  // 수구와 목적구를 일직선에 놓되, 공 지름의 5배 거리를 두어
+  // 기존 고정 4 서브스텝에서는 터널링이 발생할 수 있는 배치
+  cueBall.x = 0.30;
+  cueBall.y = 0.71;
+  cueBall.vx = 0;
+  cueBall.vy = 0;
+  objectBall1.x = 0.70;
+  objectBall1.y = 0.71;
+  objectBall1.vx = 0;
+  objectBall1.vy = 0;
+
+  const result = submitRoomShot(state, created.room.roomId, 'u1', {
+    schemaName: 'shot_input',
+    schemaVersion: '1.0.0',
+    roomId: created.room.roomId,
+    matchId: 'match-1',
+    turnId: 'turn-1',
+    playerId: 'u1',
+    clientTsMs: 1,
+    shotDirectionDeg: 0,
+    cueElevationDeg: 10,
+    dragPx: 400,
+    impactOffsetX: 0,
+    impactOffsetY: 0,
+  });
+  assert.equal(result.ok, true);
+
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  // 충돌 후 목적구가 움직여야 하고, 수구 x가 목적구 x를 넘어서는 안 된다
+  assert.ok(Math.hypot(objectBall1.vx, objectBall1.vy) > 0.01, '목적구가 충돌로 움직여야 한다');
+  assert.ok(cueBall.x < objectBall1.x, '수구가 목적구를 통과하면 안 된다');
+});
+
+test('터널링 방지: 근접 배치에서 최대 속도 충돌 시 운동량이 전달된다', async () => {
+  const { state } = createLobbyHttpServer();
+  const created = createRoom(state, { title: 'tunnel-close' });
+  assert.equal(created.ok, true);
+  if (!created.ok) return;
+  joinRoom(state, created.room.roomId, { memberId: 'u1', displayName: 'host' });
+  joinRoom(state, created.room.roomId, { memberId: 'u2', displayName: 'guest' });
+  const started = startRoomGame(state, created.room.roomId, 'u1');
+  assert.equal(started.ok, true);
+  if (!started.ok) return;
+  const cueBall = created.room.balls.find((ball) => ball.id === 'cueBall');
+  const objectBall1 = created.room.balls.find((ball) => ball.id === 'objectBall1');
+  assert.ok(cueBall);
+  assert.ok(objectBall1);
+  if (!cueBall || !objectBall1) return;
+
+  // 공 반지름보다 약간 큰 거리(0.07m)에 목적구 배치
+  cueBall.x = 0.50;
+  cueBall.y = 0.71;
+  cueBall.vx = 0;
+  cueBall.vy = 0;
+  objectBall1.x = 0.57;
+  objectBall1.y = 0.71;
+  objectBall1.vx = 0;
+  objectBall1.vy = 0;
+
+  const result = submitRoomShot(state, created.room.roomId, 'u1', {
+    schemaName: 'shot_input',
+    schemaVersion: '1.0.0',
+    roomId: created.room.roomId,
+    matchId: 'match-1',
+    turnId: 'turn-1',
+    playerId: 'u1',
+    clientTsMs: 1,
+    shotDirectionDeg: 0,
+    cueElevationDeg: 10,
+    dragPx: 400,
+    impactOffsetX: 0,
+    impactOffsetY: 0,
+  });
+  assert.equal(result.ok, true);
+
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  // 충돌 후 목적구 속도가 수구보다 커야 한다 (에너지 전달)
+  const cueBallSpeed = Math.hypot(cueBall.vx, cueBall.vy);
+  const objectBall1Speed = Math.hypot(objectBall1.vx, objectBall1.vy);
+  assert.ok(objectBall1Speed > cueBallSpeed, '정면 충돌 시 목적구가 수구보다 빨라야 한다');
+});
