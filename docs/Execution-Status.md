@@ -346,7 +346,7 @@ PHYS-CT-QA pass: contact-time throw angle table generated 통과 | - | - | 문�
 | PHYS-CT-005 | Agent A | done | 2026-02-24 11:48 | `node --experimental-strip-types scripts/qa/cushion-contact-time-angle-table.ts` 통과 | - | PHYS-CT-006 | 10~100% 반사각 표 생성/단조성 검증 QA 자동화 완료 |
 | PHYS-CT-006 | Agent A | done | 2026-02-24 11:48 | `python3 scripts/ci/spec_guard.py docs/Physics-Spec.md docs/Physics-Spec_kr.md apps/game-server/src/lobby/http.ts` 통과 | - | PHYS-CT-007 | 스펙 가드 검증 완료 |
 | PHYS-CT-007 | Agent A | done | 2026-02-24 11:48 | `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts` 통과(29 pass), `pnpm run qa:cushion-contact-time` 통과 | - | - | 문서/코드/테스트/QA 통합 회귀 검증 완료 |
-| PHYS-TUN-001 | Agent A | in_progress | 2026-02-26 00:00 | - | - | PHYS-TUN-002 | 속도 상한 통일 (30→15.56 m/s) |
-| PHYS-TUN-002 | Agent A | pending | - | - | - | PHYS-TUN-003 | 적응형 서브스텝 도입 |
+| PHYS-TUN-001 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass, shot-init.test.ts 2 pass | - | PHYS-TUN-002 | 속도 상한 통일 (30→15.56 m/s) |
+| PHYS-TUN-002 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass | - | PHYS-TUN-003 | 적응형 서브스텝 도입 완료 |
 | PHYS-TUN-003 | Agent A | pending | - | - | - | PHYS-TUN-004 | CCD 로직 수정 |
 | PHYS-TUN-004 | Agent A | pending | - | - | - | - | 터널링 방지 테스트 추가 |

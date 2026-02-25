@@ -260,11 +260,26 @@ function appendShotEvent(room: LobbyRoom, event: PhysicsEvent): void {
   room.currentShotEvents.push(event);
 }
 
+const MIN_PHYSICS_SUBSTEPS = 4;
+const MAX_PHYSICS_SUBSTEPS = 64;
+
+function computeAdaptiveSubsteps(room: LobbyRoom): number {
+  let maxSpeed = 0;
+  for (const ball of room.balls) {
+    if (ball.isPocketed) continue;
+    const speed = Math.hypot(ball.vx, ball.vy);
+    if (speed > maxSpeed) maxSpeed = speed;
+  }
+  const needed = Math.ceil((maxSpeed * PHYSICS_DT_SEC) / BALL_RADIUS_M);
+  return Math.max(MIN_PHYSICS_SUBSTEPS, Math.min(needed, MAX_PHYSICS_SUBSTEPS));
+}
+
 function stepRoomPhysics(room: LobbyRoom): void {
-  const substepDtSec = PHYSICS_DT_SEC / PHYSICS_SUBSTEPS;
-  const linearDamping = Math.pow(0.985, 1 / PHYSICS_SUBSTEPS);
-  const spinDamping = Math.pow(0.97, 1 / PHYSICS_SUBSTEPS);
-  for (let step = 0; step < PHYSICS_SUBSTEPS; step += 1) {
+  const substeps = computeAdaptiveSubsteps(room);
+  const substepDtSec = PHYSICS_DT_SEC / substeps;
+  const linearDamping = Math.pow(0.985, 1 / substeps);
+  const spinDamping = Math.pow(0.97, 1 / substeps);
+  for (let step = 0; step < substeps; step += 1) {
     const prevPositions = room.balls.map((ball) => ({ x: ball.x, y: ball.y }));
     for (const ball of room.balls) {
       if (ball.isPocketed) {
