@@ -9,10 +9,10 @@
 ## 요약
 | Metric | Value |
 |---|---|
-| Total Tasks | 195 |
+| Total Tasks | 198 |
 | Todo | 0 |
 | In Progress | 0 |
-| Done | 195 |
+| Done | 198 |
 | Blocked | 0 |
 | Last Updated | 2026-02-26 00:00 |
 
@@ -351,3 +351,6 @@ PHYS-CT-QA pass: contact-time throw angle table generated 통과 | - | - | 문�
 | PHYS-TUN-003 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass | - | PHYS-TUN-004 | CCD 로직 수정 완료 |
 | PHYS-TUN-004 | Agent A | done | 2026-02-26 00:00 | http.test.ts 33 pass | - | - | 터널링 방지 테스트 2건 추가 완료 |
 | UI-TABLE-001 | Agent A | done | 2026-02-26 00:00 | lint 통과, http.test.ts 33 pass | - | - | 게임방 캔버스 CSS 제약 추가 완료 |
+| TIMER-001 | Agent A | done | 2026-02-26 00:00 | http.test.ts 34 pass | - | TIMER-002 | 샷 제출 시 턴 타이머 정지 완료 |
+| TIMER-002 | Agent A | done | 2026-02-26 00:00 | lint 통과, 브라우저 확인 | - | TIMER-003 | HUD 타이머 "샷 진행 중" 표시 완료 |
+| TIMER-003 | Agent A | done | 2026-02-26 00:00 | http.test.ts 34 pass | - | - | 타이머 정지/재개 테스트 추가 완료 |

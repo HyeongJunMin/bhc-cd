@@ -1145,10 +1145,12 @@ export function submitRoomShot(state: LobbyState, roomId: string, actorMemberId:
   room.currentShotActorMemberId = actorMemberId;
   room.currentShotStartedAtMs = Date.now();
   room.currentShotEvents = [];
+  room.turnDeadlineMs = null;
   applyShotToRoomBalls(room, validated.payload);
   broadcastRoomEvent(state, room.roomId, 'shot_started', {
     roomId: room.roomId,
     playerId: actorMemberId,
+    turnDeadlineMs: null,
     serverTimeMs: Date.now(),
   });
   const previousTimer = state.shotStateResetTimers[room.roomId];

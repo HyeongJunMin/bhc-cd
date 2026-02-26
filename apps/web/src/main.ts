@@ -967,7 +967,7 @@ function renderRoomPage(roomId: string): string {
     <section class="panel" style="margin-top: 14px;">
       <h2>인게임 HUD</h2>
       <p>현재 턴: <strong id="hud-turn">-</strong></p>
-      <p>턴 타이머: <strong id="hud-timer">10</strong>초</p>
+      <p>턴 타이머: <strong id="hud-timer">10초</strong></p>
       <div id="hud-scoreboard" class="members"></div>
     </section>
     <section class="panel" style="margin-top: 14px;">
@@ -1118,6 +1118,9 @@ function renderRoomPage(roomId: string): string {
     }
 
     function getRemainingTurnSeconds(turnDeadlineMs) {
+      if (turnDeadlineMs === null || turnDeadlineMs === undefined) {
+        return null;
+      }
       if (!Number.isFinite(turnDeadlineMs)) {
         return 10;
       }
@@ -1838,6 +1841,8 @@ function renderRoomPage(roomId: string): string {
         setAimMode('shotPending');
         shotInputLocked = true;
         updateShotInputLockUi();
+        currentTurnDeadlineMs = null;
+        hudTimer.textContent = '샷 진행 중';
         setShotMessage('샷 진행 중입니다. 다음 입력은 턴 전환 후 가능합니다.', '');
       });
       roomStream.addEventListener('shot_resolved', () => {
@@ -1904,8 +1909,9 @@ function renderRoomPage(roomId: string): string {
       const currentTurnMember = members[currentTurnIndex] || null;
       currentTurnMemberId = currentTurnMember ? String(currentTurnMember.memberId) : null;
       hudTurn.textContent = currentTurnMember ? currentTurnMember.displayName : '-';
-      currentTurnDeadlineMs = Number.isFinite(room.turnDeadlineMs) ? Number(room.turnDeadlineMs) : null;
-      hudTimer.textContent = String(getRemainingTurnSeconds(currentTurnDeadlineMs));
+      currentTurnDeadlineMs = room.turnDeadlineMs != null && Number.isFinite(room.turnDeadlineMs) ? Number(room.turnDeadlineMs) : null;
+      const remainSec = getRemainingTurnSeconds(currentTurnDeadlineMs);
+      hudTimer.textContent = remainSec === null ? '샷 진행 중' : remainSec + '초';
       if (members.length === 0) {
         hudScoreboard.innerHTML = '<p>점수판 데이터가 없습니다.</p>';
         return;
@@ -2197,7 +2203,8 @@ function renderRoomPage(roomId: string): string {
     setInterval(loadRoom, 3000);
     setInterval(loadChat, 3000);
     setInterval(() => {
-      hudTimer.textContent = String(getRemainingTurnSeconds(currentTurnDeadlineMs));
+      const remainSec = getRemainingTurnSeconds(currentTurnDeadlineMs);
+      hudTimer.textContent = remainSec === null ? '샷 진행 중' : remainSec + '초';
     }, 1000);
     window.addEventListener('beforeunload', () => {
       if (roomStream) {

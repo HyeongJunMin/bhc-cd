@@ -461,6 +461,42 @@
   - `pnpm --filter @bhc/web run lint`
   - 브라우저에서 http://localhost:9313 접속 후 게임방 진입하여 시각 확인
 
+### Phase L. 턴 타이머 개선 (샷 진행 중 타이머 정지)
+
+#### TIMER-001 샷 제출 시 턴 타이머 정지
+- 목적: 샷 제출 후 공이 굴러가는 동안 턴 타이머가 계속 흐르는 문제를 해결한다.
+- 배경: 타이머는 사용자의 생각 시간 제한 용도인데, 샷 제출 후에도 turnDeadlineMs가 유지되어 물리 시뮬레이션 중에도 시간이 소모됨.
+- 작업:
+  1) `submitRoomShot()`에서 샷 제출 성공 시 `room.turnDeadlineMs = null` 설정
+  2) `shot_started` 이벤트에 `turnDeadlineMs: null` 포함
+- 완료 조건(DoD):
+  - 샷 제출 후 turnDeadlineMs가 null이 됨
+  - 기존 테스트 전체 통과
+- 검증 명령:
+  - `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
+
+#### TIMER-002 클라이언트 HUD 타이머 정지 표시
+- 목적: 샷 진행 중 클라이언트 HUD에서 타이머를 적절히 표시한다.
+- 작업:
+  1) `turnDeadlineMs === null`이면 타이머를 "샷 진행 중" 텍스트로 대체
+  2) `shot_started` 이벤트 수신 시 타이머 UI 갱신
+- 완료 조건(DoD):
+  - 샷 진행 중 타이머가 "샷 진행 중"으로 표시됨
+  - 턴 전환 후 타이머가 정상적으로 카운트다운 재개
+- 검증 명령:
+  - `pnpm --filter @bhc/web run lint`
+  - 브라우저에서 시각 확인
+
+#### TIMER-003 타이머 개선 테스트 추가
+- 목적: 샷 제출 시 타이머 정지, 턴 전환 시 타이머 재개를 검증하는 테스트 추가.
+- 작업:
+  1) 샷 제출 후 turnDeadlineMs가 null인지 검증
+  2) 턴 전환 후 turnDeadlineMs가 새로 설정되는지 검증
+- 완료 조건(DoD):
+  - 테스트 전체 통과
+- 검증 명령:
+  - `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
+
 ## 8. 다음 권장 착수 순서
 1. INF-001 ~ INF-003
 2. AUTH-001 ~ AUTH-003
