@@ -445,6 +445,22 @@
 - 검증 명령:
   - `node --experimental-strip-types --test apps/game-server/src/lobby/http.test.ts`
 
+### Phase K. 게임방 테이블 레이아웃 수정
+
+#### UI-TABLE-001 게임방 캔버스 CSS 제약 추가
+- 목적: 게임방 페이지에서 당구 테이블 캔버스가 우측으로 오버플로우되는 문제를 해결한다.
+- 배경: 로비 페이지에는 `#room-stage` CSS(`width:100%; max-width:960px; aspect-ratio:2/1`)가 있으나, 게임방 페이지에는 누락되어 캔버스 intrinsic 크기(1200×600)가 그대로 적용됨.
+- 작업:
+  1) 게임방 페이지 CSS에 `#room-stage` 규칙 추가
+  2) 캔버스가 `main` 컨테이너(980px) 안에서 반응형으로 맞춰지도록 제약
+- 완료 조건(DoD):
+  - 캔버스가 화면을 넘지 않고 컨테이너 내에 수용됨
+  - 2:1 비율 유지
+  - 기존 테스트 전체 통과
+- 검증 명령:
+  - `pnpm --filter @bhc/web run lint`
+  - 브라우저에서 http://localhost:9313 접속 후 게임방 진입하여 시각 확인
+
 ## 8. 다음 권장 착수 순서
 1. INF-001 ~ INF-003
 2. AUTH-001 ~ AUTH-003

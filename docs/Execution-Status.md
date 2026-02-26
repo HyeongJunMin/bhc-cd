@@ -9,10 +9,10 @@
 ## 요약
 | Metric | Value |
 |---|---|
-| Total Tasks | 194 |
+| Total Tasks | 195 |
 | Todo | 0 |
 | In Progress | 0 |
-| Done | 194 |
+| Done | 195 |
 | Blocked | 0 |
 | Last Updated | 2026-02-26 00:00 |
 
@@ -350,3 +350,4 @@ PHYS-CT-QA pass: contact-time throw angle table generated 통과 | - | - | 문�
 | PHYS-TUN-002 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass | - | PHYS-TUN-003 | 적응형 서브스텝 도입 완료 |
 | PHYS-TUN-003 | Agent A | done | 2026-02-26 00:00 | http.test.ts 31 pass | - | PHYS-TUN-004 | CCD 로직 수정 완료 |
 | PHYS-TUN-004 | Agent A | done | 2026-02-26 00:00 | http.test.ts 33 pass | - | - | 터널링 방지 테스트 2건 추가 완료 |
+| UI-TABLE-001 | Agent A | done | 2026-02-26 00:00 | lint 통과, http.test.ts 33 pass | - | - | 게임방 캔버스 CSS 제약 추가 완료 |
