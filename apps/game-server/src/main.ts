@@ -1,10 +1,10 @@
 import { createAuthHttpServer } from './auth/http.ts';
 import { createLobbyHttpServer } from './lobby/http.ts';
 
-const PORT_MIN = 9211;
-const PORT_MAX = 9220;
-const DEFAULT_AUTH_PORT = 9211;
-const DEFAULT_LOBBY_PORT = 9212;
+const PORT_MIN = 9311;
+const PORT_MAX = 9320;
+const DEFAULT_AUTH_PORT = 9311;
+const DEFAULT_LOBBY_PORT = 9312;
 
 function parsePort(name: string, fallback: number): number {
   const raw = process.env[name];

@@ -68,7 +68,7 @@ bhc-c (monorepo)
 - `game-server` → `shared-types`, `physics-core`
 - `physics-core` / `shared-types` → 외부 의존 없음
 
-**주요 포트:** 9211 (auth), 9212 (lobby), 9213 (web)
+**주요 포트:** 9311 (auth), 9312 (lobby), 9313 (web)
 
 **런타임:** Node.js 22.x LTS, TypeScript 5.x, ES modules (번들러 없음, `--experimental-strip-types` 직접 실행)
 

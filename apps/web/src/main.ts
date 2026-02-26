@@ -4,9 +4,9 @@ import { extname, resolve, sep } from 'node:path';
 import { Readable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 
-const PORT_MIN = 9211;
-const PORT_MAX = 9220;
-const DEFAULT_WEB_PORT = 9213;
+const PORT_MIN = 9311;
+const PORT_MAX = 9320;
+const DEFAULT_WEB_PORT = 9313;
 const DEFAULT_AUTH_SERVER_URL = `http://localhost:${PORT_MIN}`;
 const DEFAULT_LOBBY_SERVER_URL = `http://localhost:${PORT_MIN + 1}`;
 const WEB_PUBLIC_ROOT_URL = new URL('../public/', import.meta.url);
@@ -894,6 +894,18 @@ function renderRoomPage(roomId: string): string {
       opacity: 0.5;
       cursor: not-allowed;
     }
+    .stage-wrapper {
+      width: 100%;
+      overflow: hidden;
+    }
+    .stage-wrapper canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      background: #0f172a;
+    }
     #room-message {
       min-height: 22px;
       margin-top: 10px;
@@ -947,7 +959,9 @@ function renderRoomPage(roomId: string): string {
     </section>
     <section class="panel" style="margin-top: 14px;">
       <h2>테이블 스테이지</h2>
-      <canvas id="room-stage" width="1200" height="600" aria-label="billiards-table-stage"></canvas>
+      <div class="stage-wrapper" id="stage-wrapper">
+        <canvas id="room-stage" width="1200" height="600" aria-label="billiards-table-stage"></canvas>
+      </div>
       <p id="stage-message">ROOM-UI-002A: 테이블 이미지 로딩 중...</p>
     </section>
     <section class="panel" style="margin-top: 14px;">
@@ -1202,8 +1216,10 @@ function renderRoomPage(roomId: string): string {
 
     function resizeStageCanvas() {
       const dpr = Math.max(1, window.devicePixelRatio || 1);
-      const cssWidth = Math.max(320, Math.floor(roomStage.clientWidth));
-      const cssHeight = Math.max(160, Math.floor(roomStage.clientHeight));
+      const wrapper = document.getElementById('stage-wrapper');
+      const containerWidth = wrapper ? wrapper.clientWidth : roomStage.clientWidth;
+      const cssWidth = Math.max(320, Math.floor(containerWidth));
+      const cssHeight = Math.max(160, Math.floor(cssWidth / 2));
       roomStage.width = Math.floor(cssWidth * dpr);
       roomStage.height = Math.floor(cssHeight * dpr);
       stageState.dpr = dpr;
